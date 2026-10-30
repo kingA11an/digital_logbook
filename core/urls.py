@@ -19,5 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('logbook.urls')), # Forward root traffic to the logbook app
+    path('accounts/', include('accounts.urls')), # We just added this line
+    path('', include('logbook.urls')),
 ]

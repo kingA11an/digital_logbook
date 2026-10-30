@@ -32,7 +32,7 @@
               Hello, {{ request.user.username }}!
             </span>
             <!-- Logout Form -->
-            <form method="POST" action="#">
+            <form method="POST" action="{% url 'accounts:logout' %}">
               {% csrf_token %}
               <button
                 type="submit"
@@ -43,7 +43,7 @@
             </form>
             {% else %}
             <a
-              href="#"
+              href="{% url 'accounts:login' %}"
               class="text-sm font-medium hover:text-brand-500 transition"
               >Login</a
             >

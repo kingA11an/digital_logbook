@@ -35,6 +35,7 @@ class LogEntry(models.Model):
         WEDNESDAY = "WED", "Wednesday"
         THURSDAY = "THU", "Thursday"
         FRIDAY = "FRI", "Friday"
+        SATURDAY = "SAT", "Saturday"
 
     weekly_report = models.ForeignKey(
         WeeklyReport, 

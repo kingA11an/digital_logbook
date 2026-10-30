@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard | Digital Logbook{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex justify-between items-end">
+    <div>
+        <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            My Attachment Logbook
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">
+            Welcome back, <span class="font-semibold text-brand-500">{{ request.user.username }}</span>. Track your daily progress and weekly approvals.
+        </p>
+    </div>
+    
+    <!-- Action Button -->
+    <a href="{% url 'logbook:create_log' %}" class="bg-brand-500 hover:bg-brand-900 text-white font-medium py-2.5 px-5 rounded-md transition-colors shadow-sm flex items-center gap-2 border border-transparent">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        New Daily Log
+    </a>
+</div>
+
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- Left Column: Recent Logs (Takes up 2/3 width on large screens) -->
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white dark:bg-darkcard rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-darkcard/50">
+                <h2 class="font-semibold text-gray-900 dark:text-white">Recent Entries</h2>
+                <!-- Professional, flat badge styling instead of a pill -->
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 px-3 py-1 rounded-md bg-white dark:bg-darkbg">Week 1</span>
+            </div>
+            
+            <div class="divide-y divide-gray-200 dark:divide-gray-800">
+                
+                {% for log in recent_logs %}
+                <div class="p-6 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-gray-900 dark:text-white">{{ log.activity_description|truncatewords:6 }}</h3>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ log.get_day_of_week_display }}, {{ log.date|date:"M d" }}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                        {{ log.activity_description }}
+                    </p>
+                    
+                    <!-- Professional, clean data layout with SVG -->
+                    <div class="mt-4 flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ log.hours_worked }} Hours
+                    </div>
+                </div>
+
+                {% empty %}
+                <!-- If the database returns 0 logs, show this friendly message instead -->
+                 <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-gray-400 dark:text-gray-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p>No daily logs found.</p>
+                    <p class="text-sm mt-1">Click "New Daily Log" to record your first entry!</p>
+                </div>
+                {% endfor %}
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Status & Supervisor Info -->
+    <div class="space-y-6">
+        <!-- Supervisor Card -->
+        <div class="bg-white dark:bg-darkcard rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm p-6">
+            <h2 class="font-semibold text-gray-900 dark:text-white mb-4">Attachment Details</h2>
+            <div class="space-y-4 text-sm">
+                <div class="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
+                    <span class="text-gray-500 dark:text-gray-400">Company</span>
+                    <span class="font-medium text-gray-900 dark:text-white">Tech Solutions Ltd</span>
+                </div>
+                <div class="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
+                    <span class="text-gray-500 dark:text-gray-400">Field Supervisor</span>
+                    <span class="font-medium text-gray-900 dark:text-white">Pending Approval</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500 dark:text-gray-400">Status</span>
+                    <span class="text-green-600 dark:text-green-400 font-semibold">Active</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

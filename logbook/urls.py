@@ -11,4 +11,6 @@ urlpatterns = [
     # New endpoints for Edit and Delete
     path('dashboard/student/log/<int:log_id>/edit/', views.edit_daily_log, name='edit_log'),
     path('dashboard/student/log/<int:log_id>/delete/', views.delete_daily_log, name='delete_log'),
+    path('dashboard/student/reports/', views.weekly_reports_list, name='weekly_reports_list'),
+    path('dashboard/student/reports/<int:report_id>/submit/', views.submit_weekly_report, name='submit_weekly_report'),
 ]

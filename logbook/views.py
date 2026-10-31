@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from .forms import LogEntryForm, EditLogEntryForm
+from .forms import LogEntryForm, EditLogEntryForm, SubmitWeeklyReportForm
 from .models import WeeklyReport, LogEntry
 from datetime import date, timedelta
+from django.utils import timezone
 
 def home_view(request): 
     return render(request, 'home.html')
@@ -115,3 +116,39 @@ def delete_daily_log(request, log_id):
         
     # If they somehow hit this via GET, bounce them back to the dashboard
     return redirect('logbook:student_dashboard')
+
+@login_required(login_url='accounts:login')
+def weekly_reports_list(request):
+    # Fetch all reports for this student, newest first
+    reports = WeeklyReport.objects.filter(
+        student=request.user.student_profile
+    ).order_by('-week_number')
+    
+    return render(request, 'logbook/weekly_reports_list.html', {'reports': reports})
+
+
+@login_required(login_url='accounts:login')
+def submit_weekly_report(request, report_id):
+    # Securely grab the specific report and all its daily logs
+    report = get_object_or_404(WeeklyReport, id=report_id, student=request.user.student_profile)
+    logs = LogEntry.objects.filter(weekly_report=report).order_by('date')
+    
+    if request.method == 'POST':
+        # Only allow submission if it's currently a Draft or was Rejected
+        if report.status in [WeeklyReport.Status.DRAFT, WeeklyReport.Status.REJECTED]:
+            form = SubmitWeeklyReportForm(request.POST, instance=report)
+            if form.is_valid():
+                saved_report = form.save(commit=False)
+                saved_report.status = WeeklyReport.Status.SUBMITTED
+                saved_report.submitted_at = timezone.now()
+                saved_report.save()
+                return redirect('logbook:weekly_reports_list')
+    else:
+        form = SubmitWeeklyReportForm(instance=report)
+        
+    context = {
+        'report': report,
+        'logs': logs,
+        'form': form,
+    }
+    return render(request, 'logbook/submit_weekly_report.html', context)

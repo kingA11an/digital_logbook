@@ -1,5 +1,5 @@
 from django import forms
-from .models import LogEntry
+from .models import LogEntry, WeeklyReport
 
 class LogEntryForm(forms.ModelForm):
     class Meta:
@@ -40,5 +40,18 @@ class EditLogEntryForm(forms.ModelForm):
                 'min': '0.5',
                 'max': '10',
                 'class': 'w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-darkbg text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500'
+            }),
+        }
+
+class SubmitWeeklyReportForm(forms.ModelForm):
+    class Meta:
+        model = WeeklyReport
+        fields = ['summary']
+        
+        widgets = {
+            'summary': forms.Textarea(attrs={
+                'rows': 6,
+                'class': 'w-full px-4 py-3 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-darkbg text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500',
+                'placeholder': 'Summarize your key learnings, challenges faced, and overall progress this week...'
             }),
         }

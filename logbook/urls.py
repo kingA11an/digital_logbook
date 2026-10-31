@@ -13,4 +13,8 @@ urlpatterns = [
     path('dashboard/student/log/<int:log_id>/delete/', views.delete_daily_log, name='delete_log'),
     path('dashboard/student/reports/', views.weekly_reports_list, name='weekly_reports_list'),
     path('dashboard/student/reports/<int:report_id>/submit/', views.submit_weekly_report, name='submit_weekly_report'),
+    path('dashboard/supervisor/', views.supervisor_dashboard, name='supervisor_dashboard'),
+    # --- FIELD SUPERVISOR URLS ---
+    path('dashboard/supervisor/', views.supervisor_dashboard, name='supervisor_dashboard'),
+    path('dashboard/supervisor/report/<int:report_id>/review/', views.review_weekly_report, name='review_report'),
 ]

@@ -5,6 +5,10 @@ from .forms import LogEntryForm, EditLogEntryForm, SubmitWeeklyReportForm
 from .models import WeeklyReport, LogEntry
 from datetime import date, timedelta
 from django.utils import timezone
+from django.contrib.auth import get_user_model
+from django.contrib import messages
+
+User = get_user_model()
 
 def home_view(request): 
     return render(request, 'home.html')
@@ -152,3 +156,66 @@ def submit_weekly_report(request, report_id):
         'form': form,
     }
     return render(request, 'logbook/submit_weekly_report.html', context)
+
+@login_required(login_url='accounts:login')
+def supervisor_dashboard(request):
+    # Security: Kick out anyone who isn't a Field Supervisor
+    if request.user.role != getattr(request.user.__class__.Role, 'FIELD_SUPERVISOR', 'FIELD_SUPERVISOR'):
+        return redirect('logbook:student_dashboard')
+
+    # Fetch reports waiting for this specific supervisor's approval
+    # We query WeeklyReport, navigating through the StudentProfile to find matching supervisors
+    pending_reports = WeeklyReport.objects.filter(
+        student__field_supervisor__user=request.user,
+        status=WeeklyReport.Status.SUBMITTED
+    ).select_related('student__user', 'student').order_by('submitted_at')
+
+    # Fetch reports they have already reviewed (Approved or Rejected)
+    reviewed_reports = WeeklyReport.objects.filter(
+        student__field_supervisor__user=request.user
+    ).exclude(
+        status__in=[WeeklyReport.Status.DRAFT, WeeklyReport.Status.SUBMITTED]
+    ).select_related('student__user', 'student').order_by('-submitted_at')[:10] # Just the last 10
+
+    context = {
+        'pending_reports': pending_reports,
+        'reviewed_reports': reviewed_reports,
+    }
+    return render(request, 'logbook/supervisor_dashboard.html', context)
+
+@login_required(login_url='accounts:login')
+def review_weekly_report(request, report_id):
+    # Security: Kick out anyone who isn't a Field Supervisor
+    if request.user.role != getattr(request.user.__class__.Role, 'FIELD_SUPERVISOR', 'FIELD_SUPERVISOR'):
+        return redirect('logbook:student_dashboard')
+
+    # Fetch the report, ensuring it belongs to a student assigned to THIS supervisor
+    report = get_object_or_404(
+        WeeklyReport, 
+        id=report_id, 
+        student__field_supervisor__user=request.user,
+        status=WeeklyReport.Status.SUBMITTED
+    )
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'approve':
+            report.status = WeeklyReport.Status.APPROVED
+            report.save()
+            messages.success(request, f"Week {report.week_number} report for {report.student.user.username} approved.")
+        elif action == 'reject':
+            report.status = WeeklyReport.Status.REJECTED
+            report.save()
+            messages.error(request, f"Week {report.week_number} report for {report.student.user.username} rejected.")
+            
+        return redirect('logbook:supervisor_dashboard')
+
+    # For GET request: Fetch daily logs to display to the supervisor
+    daily_logs = report.daily_logs.all().order_by('date')
+
+    context = {
+        'report': report,
+        'daily_logs': daily_logs,
+    }
+    return render(request, 'logbook/review_report.html', context)

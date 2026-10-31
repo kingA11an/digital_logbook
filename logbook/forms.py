@@ -55,3 +55,15 @@ class SubmitWeeklyReportForm(forms.ModelForm):
                 'placeholder': 'Summarize your key learnings, challenges faced, and overall progress this week...'
             }),
         }
+
+    # NEW: Strict validation to prevent empty or lazy submissions
+    def clean_summary(self):
+        summary = self.cleaned_data.get('summary', '')
+        
+        if not summary or not summary.strip():
+            raise forms.ValidationError("You cannot submit an empty report. Please write a summary of your week.")
+            
+        if len(summary.strip()) < 100:
+            raise forms.ValidationError("Your summary is too short (minimum 100 characters). Please provide more detail about your tasks and learnings.")
+            
+        return summary

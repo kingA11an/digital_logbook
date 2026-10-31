@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account | Truelog{% endblock %}
+
+{% block content %}
+{% comment %} {# NOTE: Set type="date" on attachment_start_date / attachment_end_date and type="password" on the password fields in your form widgets. Inputs below are styled via the form wrapper. #} {% endcomment %}
+<div class="mx-auto w-full max-w-2xl py-6">
+
+    <!-- Header -->
+    <div class="mb-8 text-center">
+        <span class="mx-auto flex h-11 w-11 items-center justify-center rounded-md bg-brand-500 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+            </svg>
+        </span>
+        <h1 class="mt-4 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Create your Truelog account</h1>
+        <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400">Get started tracking your industrial attachment.</p>
+    </div>
+
+    <!-- Card -->
+    <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0f172a]">
+        <form method="POST" novalidate
+              class="[&_input]:block [&_input]:w-full [&_input]:rounded-md [&_input]:border [&_input]:border-gray-300 [&_input]:bg-white [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm [&_input]:text-gray-900 [&_input]:placeholder-gray-400 [&_input]:focus:border-brand-500 [&_input]:focus:outline-none [&_input]:focus:ring-1 [&_input]:focus:ring-brand-500
+                     [&_select]:block [&_select]:w-full [&_select]:rounded-md [&_select]:border [&_select]:border-gray-300 [&_select]:bg-white [&_select]:px-3 [&_select]:py-2 [&_select]:text-sm [&_select]:text-gray-900 [&_select]:focus:border-brand-500 [&_select]:focus:outline-none [&_select]:focus:ring-1 [&_select]:focus:ring-brand-500
+                     dark:[&_input]:border-gray-700 dark:[&_input]:bg-[#0a0f1c] dark:[&_input]:text-white dark:[&_input]:placeholder-gray-500
+                     dark:[&_select]:border-gray-700 dark:[&_select]:bg-[#0a0f1c] dark:[&_select]:text-white">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="m-6 mb-0 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                </svg>
+                <div class="text-sm text-red-700 dark:text-red-400">{{ form.non_field_errors }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Section: Account -->
+            <div class="p-6">
+                <div class="mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-brand-500" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Personal Information</h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                    <!-- Username -->
+                    <div class="sm:col-span-2">
+                        <label for="{{ form.username.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                        <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.username.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- First Name -->
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">First name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                        <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Last name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                        <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="sm:col-span-2">
+                        <label for="{{ form.email.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Email address</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Academic -->
+            <div class="border-t border-gray-200 p-6 dark:border-gray-800">
+                <div class="mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-brand-500" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                    </svg>
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Academic Details</h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                    <!-- Registration Number -->
+                    <div>
+                        <label for="{{ form.registration_number.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Registration number</label>
+                        {{ form.registration_number }}
+                        {% if form.registration_number.errors %}
+                        <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.registration_number.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Course -->
+                    <div>
+                        <label for="{{ form.course.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Course</label>
+                        {{ form.course }}
+                        {% if form.course.errors %}
+                        <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.course.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Attachment Start Date -->
+                    <div>
+                        <label for="{{ form.attachment_start_date.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Attachment start date</label>
+                        {{ form.attachment_start_date }}
+                        {% if form.attachment_start_date.errors %}
+                        <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.attachment_start_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Attachment End Date -->
+                    <div>
+                        <label for="{{ form.attachment_end_date.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Attachment end date</label>
+                        {{ form.attachment_end_date }}
+                        {% if form.attachment_end_date.errors %}
+                        <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.attachment_end_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Security -->
+            <div class="border-t border-gray-200 p-6 dark:border-gray-800">
+                <div class="mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-brand-500" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                    </svg>
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Security</h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                    <!-- Password -->
+                    <div>
+                        <label for="{{ form.password.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                        <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.password.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label for="{{ form.password_confirm.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Confirm password</label>
+                        {{ form.password_confirm }}
+                        {% if form.password_confirm.errors %}
+                        <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.password_confirm.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="rounded-b-md border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-800 dark:bg-[#0a0f1c]">
+                <button type="submit"
+                        class="flex w-full items-center justify-center gap-2 rounded-md border border-transparent bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#0a0f1c]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                    </svg>
+                    Create Account
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Login link -->
+    <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        Already have an account?
+        <a href="{% url 'accounts:login' %}" class="font-medium text-brand-500 hover:text-brand-600 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#0a0f1c]">Log in</a>
+    </p>
+
+</div>
+{% endblock %}

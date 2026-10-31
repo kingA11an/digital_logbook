@@ -1,26 +1,30 @@
-{% extends 'base.html' %} {% block title %}Home | Digital Logbook{% endblock%}
+{% extends 'base.html' %} 
+
+{% block title %}Home | Truelog{% endblock%}
+
 {% block content %}
 <div class="max-w-3xl mx-auto text-center mt-12">
-  <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl mb-6">
-    Welcome to your <span class="text-brand-500">Digital Logbook</span>
+  <h1
+    class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl"
+  >
+    Welcome to <span class="text-brand-500">Truelog</span>
   </h1>
-  <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">
+  <p class="mx-auto mt-6 max-w-2xl text-lg text-gray-300">
     Streamline your industrial attachment. Submit daily logs, track weekly
     progress, and get supervisor approvals all in one place.
   </p>
-
-  <div class="flex justify-center gap-4">
+  <div class="mt-10 flex justify-center gap-4">
     <a
-      href="#"
-      class="bg-brand-500 hover:bg-brand-900 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+      href="{% url 'accounts:register' %}"
+      class="rounded-md bg-brand-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#0a0f1c] transition-colors"
     >
       Get Started
     </a>
     <a
-      href="#"
-      class="bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+      href="{% url 'accounts:login' %}"
+      class="rounded-md bg-gray-800 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-[#0a0f1c] transition-colors"
     >
-      Learn More
+      Log In
     </a>
   </div>
 </div>

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In | Truelog{% endblock %}
+
+{% block content %}
+{% comment %} {# NOTE: Inputs are styled through the form wrapper below. If you prefer styling at the widget level, set this class string in your form's widget attrs:
+   block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-[#0a0f1c] dark:text-white dark:placeholder-gray-500 #} {% endcomment %}
+<div class="mx-auto w-full max-w-md py-10">
+
+    <!-- Header -->
+    <div class="mb-8 text-center">
+        <span class="mx-auto flex h-11 w-11 items-center justify-center rounded-md bg-brand-500 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+            </svg>
+        </span>
+        <h1 class="mt-4 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Log in to your account</h1>
+    </div>
+
+    <!-- Card -->
+    <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0f172a]">
+        <form method="POST" novalidate
+              class="[&_input]:block [&_input]:w-full [&_input]:rounded-md [&_input]:border [&_input]:border-gray-300 [&_input]:bg-white [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm [&_input]:text-gray-900 [&_input]:placeholder-gray-400 [&_input]:focus:border-brand-500 [&_input]:focus:outline-none [&_input]:focus:ring-1 [&_input]:focus:ring-brand-500
+                     dark:[&_input]:border-gray-700 dark:[&_input]:bg-[#0a0f1c] dark:[&_input]:text-white dark:[&_input]:placeholder-gray-500">
+            {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+            {% if form.non_field_errors %}
+            <div class="m-6 mb-0 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                </svg>
+                <div class="text-sm text-red-700 dark:text-red-400">{{ form.non_field_errors }}</div>
+            </div>
+            {% endif %}
+
+            <div class="space-y-5 p-6">
+
+                <!-- Username -->
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="{{ form.password.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                    <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="rounded-b-md border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-800 dark:bg-[#0a0f1c]">
+                <button type="submit"
+                        class="flex w-full items-center justify-center gap-2 rounded-md border border-transparent bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#0a0f1c]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+                    </svg>
+                    Sign In
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Register link -->
+    <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        Don't have an account?
+        <a href="{% url 'accounts:register' %}" class="font-medium text-brand-500 hover:text-brand-600 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#0a0f1c]">Get started</a>
+    </p>
+
+</div>
+{% endblock %}

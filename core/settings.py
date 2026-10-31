@@ -136,3 +136,8 @@ MAILERS = {
 
 # Custom User Authentication
 AUTH_USER_MODEL = 'accounts.User'
+
+# Auth Routing
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'accounts:role_redirect' 
+LOGOUT_REDIRECT_URL = '/'

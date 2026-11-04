@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import StudentRegistrationForm
-from .models import StudentProfile, User
+from .models import StudentProfile, User, FieldSupervisorProfile, UniversitySupervisorProfile
 from django.db.models import Sum
 from logbook.models import LogEntry, WeeklyReport
 from django.contrib.auth.decorators import login_required
@@ -47,7 +47,14 @@ def user_profile(request):
         profile = request.user.field_supervisor_profile
         return render(request, 'accounts/supervisor_profile.html', {'profile': profile})
         
-    # 2. STUDENT PROFILE (Default)
+    # 2. UNI SUPERVISOR PROFILE
+    elif request.user.role == 'UNI_SUPERVISOR':
+        # Safely fetch the profile directly from the model
+        from django.shortcuts import get_object_or_404
+        profile = get_object_or_404(UniversitySupervisorProfile, user=request.user)
+        return render(request, 'accounts/uni_profile.html', {'profile': profile})
+        
+    # 3. STUDENT PROFILE (Default)
     profile = getattr(request.user, 'student_profile', None)
     if not profile:
         return redirect('accounts:login') # Safety fallback
@@ -57,6 +64,7 @@ def user_profile(request):
         student=profile, 
         status=WeeklyReport.Status.APPROVED
     )
+    from django.db.models import Sum # Ensure this is imported at the top!
     total_approved_hours = LogEntry.objects.filter(
         weekly_report__in=approved_reports
     ).aggregate(Sum('hours_worked'))['hours_worked__sum'] or 0.0

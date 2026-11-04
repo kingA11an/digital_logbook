@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Assign Supervisor | Truelog{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl">
+
+    <!-- Back Link -->
+    <a href="{% url 'logbook:university_dashboard' %}"
+       class="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-[#0a0f1c]">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Assign Field Supervisor</h1>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Assigning supervisor for {{ student.user.get_full_name|default:student.user.username }} ({{ student.registration_number }}).
+        </p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0f172a]">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="p-6">
+                <label for="supervisor_id" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">
+                    Select Company / Supervisor
+                </label>
+                <div class="relative">
+                    <select name="supervisor_id" id="supervisor_id" required
+                            class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-[#0a0f1c] dark:text-white">
+                        <option value="">Choose a supervisor...</option>
+                        {% for sv in supervisors %}
+                        <option value="{{ sv.id }}">{{ sv.company_name }} - {{ sv.user.get_full_name|default:sv.user.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 dark:text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </span>
+                </div>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    The selected supervisor will be responsible for reviewing and approving this student's weekly reports.
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-3 rounded-b-md border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-800 dark:bg-[#0a0f1c]">
+                <a href="{% url 'logbook:university_dashboard' %}"
+                   class="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:border-gray-700 dark:bg-transparent dark:text-white dark:hover:bg-[#0f172a] dark:focus:ring-offset-[#0a0f1c]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="inline-flex items-center gap-1.5 rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#0a0f1c]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                    Save Assignment
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

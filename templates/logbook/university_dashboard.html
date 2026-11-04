@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}University Admin Dashboard | Truelog{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl">
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">University Admin Dashboard</h1>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage student attachments, assign supervisors, and audit progress.</p>
+    </div>
+
+    <!-- Action Required: Unassigned Students -->
+    {% if unassigned_students %}
+    <div class="mb-6 rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0f172a]">
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Action Required: Unassigned Students</h2>
+            </div>
+            <span class="rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-400">
+                {{ unassigned_students|length }} unassigned
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-[#0a0f1c]">
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Student Name</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Reg Number</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Course</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    {% for student in unassigned_students %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-[#0a0f1c]">
+                        <td class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
+                            {{ student.user.get_full_name|default:student.user.username }}
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-4 text-gray-700 dark:text-gray-300">{{ student.registration_number }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 text-gray-500 dark:text-gray-400">{{ student.course }}</td>
+                        <td class="whitespace-nowrap px-6 py-4">
+                            <a href="{% url 'logbook:assign_supervisor' student.id %}"
+                               class="inline-flex items-center gap-1.5 rounded-md border border-transparent bg-brand-500 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#0f172a]">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                                </svg>
+                                Assign Supervisor
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Active Attachments -->
+    <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0f172a]">
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-brand-500" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z" />
+                </svg>
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Active Attachments</h2>
+            </div>
+            {% if assigned_students %}
+            <span class="rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700 dark:border-gray-800 dark:bg-[#0a0f1c] dark:text-gray-300">
+                {{ assigned_students|length }} active
+            </span>
+            {% endif %}
+        </div>
+
+        {% if assigned_students %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-[#0a0f1c]">
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Student Name</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Reg Number</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Company</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Supervisor</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    {% for student in assigned_students %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-[#0a0f1c]">
+                        <td class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
+                            {{ student.user.get_full_name|default:student.user.username }}
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-4 text-gray-700 dark:text-gray-300">{{ student.registration_number }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 text-gray-500 dark:text-gray-400">{{ student.field_supervisor.company_name }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 text-gray-500 dark:text-gray-400">
+                            {{ student.field_supervisor.user.get_full_name|default:student.field_supervisor.user.username }}
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-4">
+                            <a href="{% url 'logbook:uni_student_progress' student.id %}"
+                               class="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:border-gray-700 dark:bg-transparent dark:text-white dark:hover:bg-[#0a0f1c] dark:focus:ring-offset-[#0f172a]">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                                </svg>
+                                View Progress
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center px-6 py-12 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-8 w-8 text-gray-400 dark:text-gray-500" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" />
+            </svg>
+            <p class="mt-3 text-sm font-medium text-gray-900 dark:text-white">No active attachments yet</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Students with an assigned supervisor will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

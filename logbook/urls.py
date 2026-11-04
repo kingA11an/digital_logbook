@@ -17,4 +17,9 @@ urlpatterns = [
     # --- FIELD SUPERVISOR URLS ---
     path('dashboard/supervisor/', views.supervisor_dashboard, name='supervisor_dashboard'),
     path('dashboard/supervisor/report/<int:report_id>/review/', views.review_weekly_report, name='review_report'),
+    
+# --- UNIVERSITY SUPERVISOR URLS ---
+    path('dashboard/university/', views.university_dashboard, name='university_dashboard'),
+    path('dashboard/university/assign/<int:student_id>/', views.assign_supervisor, name='assign_supervisor'),
+    path('dashboard/university/student/<int:student_id>/progress/', views.university_student_progress, name='uni_student_progress'),
 ]

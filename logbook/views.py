@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.db.models import Sum
+from accounts.models import StudentProfile, FieldSupervisorProfile
 from .forms import LogEntryForm, EditLogEntryForm, SubmitWeeklyReportForm
 from .models import WeeklyReport, LogEntry
 from datetime import date, timedelta
@@ -94,10 +96,16 @@ def edit_daily_log(request, log_id):
         weekly_report__student=request.user.student_profile
     )
     
+    # SECURITY LOCK: Only allow editing if the report is a DRAFT or was REJECTED
+    if log.weekly_report.status not in [WeeklyReport.Status.DRAFT, WeeklyReport.Status.REJECTED]:
+        messages.error(request, "You cannot edit logs for a report that has been submitted or approved.")
+        return redirect('logbook:student_dashboard')
+    
     if request.method == 'POST':
         form = EditLogEntryForm(request.POST, instance=log)
         if form.is_valid():
             form.save()
+            messages.success(request, "Log updated successfully.")
             return redirect('logbook:student_dashboard')
     else:
         form = EditLogEntryForm(instance=log)
@@ -114,8 +122,14 @@ def delete_daily_log(request, log_id):
         weekly_report__student=request.user.student_profile
     )
     
+    # SECURITY LOCK: Only allow deleting if the report is a DRAFT or was REJECTED
+    if log.weekly_report.status not in [WeeklyReport.Status.DRAFT, WeeklyReport.Status.REJECTED]:
+        messages.error(request, "You cannot delete logs from a report that has been submitted or approved.")
+        return redirect('logbook:student_dashboard')
+        
     if request.method == 'POST':
         log.delete()
+        messages.success(request, "Log deleted successfully.")
         return redirect('logbook:student_dashboard')
         
     # If they somehow hit this via GET, bounce them back to the dashboard
@@ -135,18 +149,23 @@ def weekly_reports_list(request):
 def submit_weekly_report(request, report_id):
     # Securely grab the specific report and all its daily logs
     report = get_object_or_404(WeeklyReport, id=report_id, student=request.user.student_profile)
+    
+    # SECURITY LOCK: Bounce them immediately if it's already submitted/approved
+    if report.status not in [WeeklyReport.Status.DRAFT, WeeklyReport.Status.REJECTED]:
+        messages.error(request, "This report has already been submitted or approved and cannot be modified.")
+        return redirect('logbook:weekly_reports_list')
+
     logs = LogEntry.objects.filter(weekly_report=report).order_by('date')
     
     if request.method == 'POST':
-        # Only allow submission if it's currently a Draft or was Rejected
-        if report.status in [WeeklyReport.Status.DRAFT, WeeklyReport.Status.REJECTED]:
-            form = SubmitWeeklyReportForm(request.POST, instance=report)
-            if form.is_valid():
-                saved_report = form.save(commit=False)
-                saved_report.status = WeeklyReport.Status.SUBMITTED
-                saved_report.submitted_at = timezone.now()
-                saved_report.save()
-                return redirect('logbook:weekly_reports_list')
+        form = SubmitWeeklyReportForm(request.POST, instance=report)
+        if form.is_valid():
+            saved_report = form.save(commit=False)
+            saved_report.status = WeeklyReport.Status.SUBMITTED
+            saved_report.submitted_at = timezone.now()
+            saved_report.save()
+            messages.success(request, f"Week {report.week_number} report submitted successfully!")
+            return redirect('logbook:weekly_reports_list')
     else:
         form = SubmitWeeklyReportForm(instance=report)
         
@@ -219,3 +238,74 @@ def review_weekly_report(request, report_id):
         'daily_logs': daily_logs,
     }
     return render(request, 'logbook/review_report.html', context)
+
+@login_required(login_url='accounts:login')
+def university_dashboard(request):
+    # Security: Kick out anyone who isn't a University Supervisor
+    if request.user.role != getattr(request.user.__class__.Role, 'UNI_SUPERVISOR', 'UNI_SUPERVISOR'):
+        return redirect('logbook:student_dashboard')
+    
+    # 1. Unassigned Students: Students who need a field supervisor assigned 
+    unassigned_students = StudentProfile.objects.filter(
+        field_supervisor__isnull=True
+    ).select_related('user').order_by('-user__date_joined')
+    
+    # 2. Assigned students: the bird's eye view of active attachments 
+    assigned_students = StudentProfile.objects.filter(
+        field_supervisor__isnull=False
+    ).select_related('user', 'field_supervisor', 'field_supervisor__user').order_by('user__first_name')
+    
+    context = {
+        'unassigned_students': unassigned_students,
+        'assigned_students': assigned_students,
+    }
+    return render(request, 'logbook/university_dashboard.html', context)
+
+@login_required(login_url='accounts:login')
+def assign_supervisor(request, student_id):
+    # Security: Kick out anyone who isn't a University Supervisor
+    if request.user.role != getattr(request.user.__class__.Role, 'UNI_SUPERVISOR', 'UNI_SUPERVISOR'):
+        return redirect('logbook:student_dashboard')
+
+    student = get_object_or_404(StudentProfile, id=student_id)
+    
+    # Fetch all registered field supervisors
+    supervisors = FieldSupervisorProfile.objects.all().select_related('user').order_by('company_name')
+
+    if request.method == 'POST':
+        supervisor_id = request.POST.get('supervisor_id')
+        if supervisor_id:
+            supervisor = get_object_or_404(FieldSupervisorProfile, id=supervisor_id)
+            student.field_supervisor = supervisor
+            student.save()
+            messages.success(request, f"Successfully assigned {supervisor.user.get_full_name() or supervisor.user.username} to {student.user.get_full_name() or student.user.username}.")
+            return redirect('logbook:university_dashboard')
+
+    return render(request, 'logbook/assign_supervisor.html', {
+        'student': student, 
+        'supervisors': supervisors
+    })
+    
+@login_required(login_url='accounts:login')
+def university_student_progress(request, student_id):
+    # security: only uni supervisors can access this 
+    if request.user.role != getattr(request.user.__class__.Role, 'UNI_SUPERVISOR', 'UNI_SUPERVISOR'):
+        return redirect('logbook:student_dashboard')
+    
+    student = get_object_or_404(StudentProfile, id=student_id)
+    
+    # fetch all reports ordered by week 
+    reports = WeeklyReport.objects.filter(student=student).order_by('week_number')
+    
+    # calculate total approved hours 
+    approved_reports = reports.filter(status=WeeklyReport.Status.APPROVED)
+    total_approved_hours = LogEntry.objects.filter(
+        weekly_report__in=approved_reports
+    ).aggregate(Sum('hours_worked'))['hours_worked__sum'] or 0.0
+    
+    context = {
+        'student': student,
+        'reports': reports,  # <-- Make sure this is just 'reports'
+        'total_approved_hours': total_approved_hours,
+    }
+    return render(request, 'logbook/uni_student_progress.html', context)

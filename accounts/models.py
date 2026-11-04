@@ -26,11 +26,12 @@ class FieldSupervisorProfile(models.Model):
 
 class UniversitySupervisorProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="uni_supervisor_profile")
+    university_name = models.CharField(max_length=200, default='Multimedia University of Kenya')
     department = models.CharField(max_length=150)
     staff_id = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
-        return f"{self.user.get_full_name() or self.user.username} - {self.department}"
+        return f"{self.user.get_full_name() or self.user.username} - {self.department} - {self.university_name}"
 
 class StudentProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='student_profile')

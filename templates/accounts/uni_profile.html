@@ -19,13 +19,23 @@
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">Personal Information</h2>
         </div>
         <dl class="divide-y divide-gray-200 dark:divide-gray-800">
-            <div class="px-6 py-4 sm:grid sm:grid-col-3 sm:gap-4">
+            <!-- Full Name Row -->
+            <div class="px-6 py-4 sm:grid sm:grid-cols-3 sm:gap-4">
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Full Name</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2 sm:mt-0">{{ profile.user.get_full_name|default:profile.user.username }}</dd>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2 sm:mt-0">
+                    {{ profile.user.get_full_name|default:profile.user.username }}
+                </dd>
             </div>
             <div class="px-6 py-4 sm:grid sm:grid-cols-3 sm:gap-4">
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Email Address</dt>
                 <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2 sm:mt-0">{{ profile.user.email }}</dd>
+            </div>
+            <!-- Institution Row -->
+            <div class="px-6 py-4 sm:grid sm:grid-cols-3 sm:gap-4 border-t border-gray-200 dark:border-gray-800">
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Institution</dt>
+                <dd class="mt-1 text-sm font-medium text-gray-900 dark:text-white sm:col-span-2 sm:mt-0">
+                    {{ profile.university_name }}
+                </dd>
             </div>
             <div class="px-6 py-4 sm:grid sm:grid-cols-3 sm:gap-4">
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">System Role</dt>

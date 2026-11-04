@@ -9,6 +9,7 @@ from datetime import date, timedelta
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib import messages
+from .models import Notification
 
 User = get_user_model()
 
@@ -222,10 +223,25 @@ def review_weekly_report(request, report_id):
         if action == 'approve':
             report.status = WeeklyReport.Status.APPROVED
             report.save()
+            
+            # --- NOTIFICATION TRIGGER ---
+            Notification.objects.create(
+                recipient=report.student.user,
+                message=f"Your Week {report.week_number} report was APPROVED by your supervisor."
+            )
+            
             messages.success(request, f"Week {report.week_number} report for {report.student.user.username} approved.")
+            
         elif action == 'reject':
             report.status = WeeklyReport.Status.REJECTED
             report.save()
+            
+            # --- NOTIFICATION TRIGGER ---
+            Notification.objects.create(
+                recipient=report.student.user,
+                message=f"Your Week {report.week_number} report was REJECTED by your supervisor. Please review and resubmit."
+            )
+            
             messages.error(request, f"Week {report.week_number} report for {report.student.user.username} rejected.")
             
         return redirect('logbook:supervisor_dashboard')
@@ -309,3 +325,22 @@ def university_student_progress(request, student_id):
         'total_approved_hours': total_approved_hours,
     }
     return render(request, 'logbook/uni_student_progress.html', context)
+
+@login_required(login_url='accounts:login')
+def student_view_report(request, report_id):
+    # Ensure only the student who owns the report can view it
+    report = get_object_or_404(WeeklyReport, id=report_id, student__user=request.user)
+    
+    # Fetch all daily logs attached to this report
+    daily_logs = report.daily_logs.all().order_by('date')
+    
+    # Mark all unread notifications for this user as read
+    unread_notes = request.user.notifications.filter(is_read=False)
+    if unread_notes.exists():
+        unread_notes.update(is_read=True)
+
+    context = {
+        'report': report,
+        'daily_logs': daily_logs,
+    }
+    return render(request, 'logbook/student_view_report.html', context)

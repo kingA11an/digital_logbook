@@ -10,6 +10,11 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from .models import Notification
+from django.http import HttpResponse
+from django.template.loader import get_template 
+from xhtml2pdf import pisa
+from django.core.mail import send_mail
+from django.conf import settings
 
 User = get_user_model()
 
@@ -169,14 +174,14 @@ def weekly_reports_list(request):
 
 @login_required(login_url='accounts:login')
 def submit_weekly_report(request, report_id):
-    # Securely grab the specific report and all its daily logs
+    #securely grab the specific report and all its daily logs 
     report = get_object_or_404(WeeklyReport, id=report_id, student=request.user.student_profile)
     
-    # SECURITY LOCK: Bounce them immediately if it's already submitted/approved
+    # security lock: bounce them immediately if it is already submitted/approved 
     if report.status not in [WeeklyReport.Status.DRAFT, WeeklyReport.Status.REJECTED]:
         messages.error(request, "This report has already been submitted or approved and cannot be modified.")
         return redirect('logbook:weekly_reports_list')
-
+    
     logs = LogEntry.objects.filter(weekly_report=report).order_by('date')
     
     if request.method == 'POST':
@@ -186,7 +191,37 @@ def submit_weekly_report(request, report_id):
             saved_report.status = WeeklyReport.Status.SUBMITTED
             saved_report.submitted_at = timezone.now()
             saved_report.save()
+            
+            # email trigger: notify supervisor 
+            try: 
+                # safely attempt to get the assigned supervisor's email 
+                supervisor_email = report.student.field_supervisor.user.email
+                
+                if supervisor_email:
+                    subject = f"Action Required: Truelog Week {report.week_number} Submission"
+                    message = (
+                        f"Hello,\n\n"
+                        f"{request.user.first_name or request.user.username} has just submitted their "
+                        f"Week {report.week_number} logbook report.\n\n"
+                        f"Please log in to the Truelog portal to review and approve."
+                    )
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [supervisor_email],
+                        fail_silently=False,
+                    )
+            except AttributeError as e:
+                # print the actual error so we know if it is a missing superviosr or a code bug 
+                print(f"Failed to send supervisor email. Reason: {e}")
+            except Exception as e:
+                print(f"SMTP Error: {e}")
+            
             messages.success(request, f"Week {report.week_number} report submitted successfully!")
+            return redirect('logbook:weekly_reports_list')
+        else: 
+            print(f"FORM IVALID: {form.errors}")
             return redirect('logbook:weekly_reports_list')
     else:
         form = SubmitWeeklyReportForm(instance=report)
@@ -251,6 +286,22 @@ def review_weekly_report(request, report_id):
                 message=f"Your Week {report.week_number} report was APPROVED by your supervisor."
             )
             
+            # --- EMAIL TRIGGER: Notify Student ---
+            try:
+                student_email = report.student.user.email
+                student_name = report.student.user.first_name or report.student.user.username
+                
+                if student_email:  # Safety check in case the user has no email saved
+                    send_mail(
+                        f"Truelog Update: Week {report.week_number} Approved",
+                        f"Hello {student_name},\n\nYour Week {report.week_number} attachment report has been approved by your field supervisor.\n\nLog in to the Truelog dashboard to view your progress and download your official PDF.",
+                        settings.DEFAULT_FROM_EMAIL,
+                        [student_email],
+                        fail_silently=False,
+                    )
+            except Exception as e:
+                print(f"Email failed to send: {e}")
+            
             messages.success(request, f"Week {report.week_number} report for {report.student.user.username} approved.")
             
         elif action == 'reject':
@@ -262,6 +313,22 @@ def review_weekly_report(request, report_id):
                 recipient=report.student.user,
                 message=f"Your Week {report.week_number} report was REJECTED by your supervisor. Please review and resubmit."
             )
+            
+            # --- EMAIL TRIGGER: Notify Student ---
+            try:
+                student_email = report.student.user.email
+                student_name = report.student.user.first_name or report.student.user.username
+                
+                if student_email: # Safety check
+                    send_mail(
+                        f"Truelog Update: Week {report.week_number} Rejected",
+                        f"Hello {student_name},\n\nYour Week {report.week_number} attachment report has been rejected by your field supervisor. Please review their feedback and resubmit.\n\nLog in to the Truelog dashboard to make the necessary changes.",
+                        settings.DEFAULT_FROM_EMAIL,
+                        [student_email],
+                        fail_silently=False,
+                    )
+            except Exception as e:
+                print(f"Email failed to send: {e}")
             
             messages.error(request, f"Week {report.week_number} report for {report.student.user.username} rejected.")
             
@@ -365,3 +432,34 @@ def student_view_report(request, report_id):
         'daily_logs': daily_logs,
     }
     return render(request, 'logbook/student_view_report.html', context)
+
+@login_required(login_url='accounts:login')
+def export_report_pdf(request, report_id):
+    # Fetch the specific report 
+    report = get_object_or_404(WeeklyReport, id=report_id)
+    
+    # Fetch the daily logs attached to this report 
+    logs = LogEntry.objects.filter(weekly_report=report).order_by('date')
+    
+    template_path = 'logbook/pdf_template.html'
+    context = {
+        'report': report,
+        'logs': logs,
+        'student': request.user,
+    }
+    
+    # Create the HTTP response with pdf headers 
+    response = HttpResponse(content_type='application/pdf')
+    # Use 'attachment;' to force download, or 'inline;' to open in browser
+    response['Content-Disposition'] = f'inline; filename="Week_{report.week_number}_Logbook.pdf"'
+    
+    # Render HTML and convert to pdf 
+    template = get_template(template_path)
+    html = template.render(context)
+    
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse(f'Error generating PDF: {pisa_status.err}')
+    
+    return response

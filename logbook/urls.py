@@ -23,4 +23,6 @@ urlpatterns = [
     path('dashboard/university/assign/<int:student_id>/', views.assign_supervisor, name='assign_supervisor'),
     path('dashboard/university/student/<int:student_id>/progress/', views.university_student_progress, name='uni_student_progress'),
     path('dashboard/student/report/<int:report_id>/view/', views.student_view_report, name='student_view_report'),
+    
+    path('report/<int:report_id>/pdf/', views.export_report_pdf, name='export_pdf'),
 ]

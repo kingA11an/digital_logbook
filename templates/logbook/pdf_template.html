@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Week {{ report.week_number }} Logbook Report </title>
+    <style>
+        @page {
+            size:a4 portrait;
+            margin: 2cm;
+        }
+        body { 
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            color: #333333;
+        }
+        .header {
+            text-align:center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #0f172a;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .info-table {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .info-table td {
+            padding:6px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #475569;
+            width: 120px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #cbd5e1;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .data-table th {
+            background-color: #f8fafc;
+            font-weight: bold;
+            color: #334155;
+        }
+        .signatures {
+            width: 100%
+            margin-top: 60px;
+        }
+        .signatures td {
+            width: 50%;
+            text-align: center;
+            vertical-align: bottom;
+            padding-top: 40px;
+        }
+        .sign-line { 
+            border-top: 1px solid #000;
+            width: 80%;
+            margin: 0 auto;
+            padding-top: 8px;
+            font-weight: bold;
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Truelog Digital Logbook</h1>
+        <p>Official Industrial Attachment Weekly Report</p>
+    </div>
+
+    {% comment %} student & report metadata {% endcomment %}
+    <table class="info-table">
+        <tr>
+            <td class="info-label">student Name:</td>
+            <td>{{ student.first_name|capfirst }} {{ student.last_name|capfirst }}</td>
+            <td class="info-label">Week Number:</td>
+            <td>Week {{ report.week_number }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">Report Status:</td>
+            <td>{{ report.get_status_display }}</td>
+            <td class="info-label">Generated On:</td>
+            <td>{% now "F j, Y" %}</td>
+        </tr>
+    </table>
+
+    <!-- Daily Logs table -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width:18%;">Date</th>
+                <th style="width:12%;">Hours</th>
+                <th style="width: 70%;">Activity Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.date|date:"M d, Y" }}</td>
+                <td>{{ log.hours_worked }} hrs</td>
+                <td style="line-height: 1.5;">{{ log.activity_description }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" style="text-align: center; padding: 20px;">No daily logs recorded for this week.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- signature blocks for compliance -->
+    <table class="signatures">
+        <tr>
+            <td>
+                <div class="sign-line">Student Signature & Date</div>
+            </td>
+            <td>
+                <div class="sign-line">Supervisor Signature & Stamp</div>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

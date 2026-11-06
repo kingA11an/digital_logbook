@@ -130,10 +130,19 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
 MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    "default": {
+        "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+        "OPTIONS": {
+            "host": "smtp.gmail.com",
+            "port": 587,
+            "use_tls": True,
+            "username": "truelog.support@gmail.com",
+            "password": "ujfp zwhj ipkk dagq",
+        },
     },
 }
+
+DEFAULT_FROM_EMAIL = "truelog.support@gmail.com"
 
 # Custom User Authentication
 AUTH_USER_MODEL = 'accounts.User'
@@ -142,3 +151,4 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'accounts:role_redirect' 
 LOGOUT_REDIRECT_URL = '/'
+

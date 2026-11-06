@@ -22,9 +22,30 @@ def student_dashboard(request):
     # Use select_related to efficiently pull the weekly report data attached to these logs
     recent_logs = LogEntry.objects.filter(
         weekly_report__student=request.user.student_profile
-    ).select_related('weekly_report').order_by('-date')[:5]
+    ).select_related('weekly_report').order_by('-date')[:14]
     
-    return render(request, 'logbook/student_dashboard.html', {'recent_logs': recent_logs})
+    # calculate total hours logged accross all entries for this student 
+    total_hours_data = LogEntry.objects.filter(
+        weekly_report__student=request.user.student_profile
+    ).aggregate(Sum('hours_worked'))
+    
+    total_hours = total_hours_data['hours_worked__sum'] or 0.0
+    target_hours = 300 
+    
+    # calculate percentage (capped at 100 %)
+    if target_hours > 0:
+        progress_percentage = min(round((float(total_hours) / target_hours) * 100, 1), 100)
+    else:
+        progress_percentage = 0
+    
+    context = {
+        'recent_logs': recent_logs, 
+        'total_hours': total_hours,
+        'target_hours': target_hours,
+        'progress_percentage': progress_percentage,
+    }
+    
+    return render(request, 'logbook/student_dashboard.html', context)
 
 @login_required(login_url='accounts:login')
 def create_daily_log(request):

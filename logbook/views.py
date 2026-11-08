@@ -7,7 +7,7 @@ from .forms import LogEntryForm, EditLogEntryForm, SubmitWeeklyReportForm
 from .models import WeeklyReport, LogEntry
 from datetime import date, timedelta
 from django.utils import timezone
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, logout
 from django.contrib import messages
 from .models import Notification
 from django.http import HttpResponse
@@ -18,8 +18,24 @@ from django.conf import settings
 
 User = get_user_model()
 
-def home_view(request): 
-    return render(request, 'home.html')
+@login_required(login_url='accounts:login')
+def home_view(request):
+    # 1. Send admins straight to the django admin panel 
+    if request.user.is_superuser or request.user.is_staff:
+        return redirect('/admin/')
+    
+    # 2. Check if they have a student profile safely
+    if hasattr(request.user, 'student_profile'):
+        return redirect('logbook:student_dashboard') 
+    
+    # 3. Check if they have a supervisor profile safely 
+    if hasattr(request.user, 'field_supervisor'):
+        return redirect('logbook:supervisor_dashboard')
+    
+    # 4. If they have no profile attached (the catch-all safety net)
+    logout(request) # log them out so they don't get stuck in an infinite redirect loop 
+    messages.error(request, "Your account is not linked to a Student or Supervisor profile. Please contact the system administrator.")
+    return redirect('accounts:login')
 
 # the @login_required decorator bounces unauthenticated users back to the login screen
 @login_required(login_url='accounts:login')

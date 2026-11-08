@@ -40,6 +40,10 @@ def home_view(request):
 # the @login_required decorator bounces unauthenticated users back to the login screen
 @login_required(login_url='accounts:login')
 def student_dashboard(request):
+    # safely check if the user actually has a student profile 
+    if not hasattr(request.user, 'student_profile'):
+        return redirect('home')
+    
     # Use select_related to efficiently pull the weekly report data attached to these logs
     recent_logs = LogEntry.objects.filter(
         weekly_report__student=request.user.student_profile
@@ -70,6 +74,8 @@ def student_dashboard(request):
 
 @login_required(login_url='accounts:login')
 def create_daily_log(request):
+    if not hasattr(request.user, 'student_profile'):
+        return redirect('home')
     # Grab the logged-in student's profile
     student_profile = request.user.student_profile
     
@@ -132,6 +138,8 @@ def create_daily_log(request):
 
 @login_required(login_url='accounts:login')
 def edit_daily_log(request, log_id):
+    if not hasattr(request.user, 'student_profile'):
+        return redirect('home')
     # Security: Ensure the log belongs to the currently logged-in student
     log = get_object_or_404(
         LogEntry, 
@@ -158,6 +166,8 @@ def edit_daily_log(request, log_id):
 
 @login_required(login_url='accounts:login')
 def delete_daily_log(request, log_id):
+    if not hasattr(request.user, 'student_profile'):
+        return redirect('home')
     # Security check again
     log = get_object_or_404(
         LogEntry, 
@@ -180,6 +190,8 @@ def delete_daily_log(request, log_id):
 
 @login_required(login_url='accounts:login')
 def weekly_reports_list(request):
+    if not hasattr(request.user, 'student_profile'):
+        return redirect('home')
     # Fetch all reports for this student, newest first
     reports = WeeklyReport.objects.filter(
         student=request.user.student_profile
@@ -190,6 +202,8 @@ def weekly_reports_list(request):
 
 @login_required(login_url='accounts:login')
 def submit_weekly_report(request, report_id):
+    if not hasattr(request.user, 'student_profile'):
+        return redirect('home')
     #securely grab the specific report and all its daily logs 
     report = get_object_or_404(WeeklyReport, id=report_id, student=request.user.student_profile)
     
@@ -432,6 +446,9 @@ def university_student_progress(request, student_id):
 
 @login_required(login_url='accounts:login')
 def student_view_report(request, report_id):
+    if not hasattr(request.user, 'student_profile'):
+        return redirect('home')
+    
     # Ensure only the student who owns the report can view it
     report = get_object_or_404(WeeklyReport, id=report_id, student__user=request.user)
     
@@ -451,6 +468,8 @@ def student_view_report(request, report_id):
 
 @login_required(login_url='accounts:login')
 def export_report_pdf(request, report_id):
+    if not hasattr(request.user, 'student_profile'):
+        return redirect('home')
     # Fetch the specific report 
     report = get_object_or_404(WeeklyReport, id=report_id)
     

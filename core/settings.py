@@ -162,3 +162,5 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'accounts:role_redirect' 
 LOGOUT_REDIRECT_URL = '/'
 
+# Custom view for csrf failures (like logging in across multiple tabs)
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure' # 

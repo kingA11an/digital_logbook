@@ -28,7 +28,9 @@ SECRET_KEY = 'django-insecure-&crb-qg$7in$13n($o5@*f_&s2gny9l4ya=lla!zj7om^bkm%i
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'truelog-ke.onrender.com'
+    'truelog-ke.onrender.com',
+    '127.0.0.1',
+    'localhost',
 ]
 
 

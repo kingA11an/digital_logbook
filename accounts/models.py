@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 class User(AbstractUser):
     class Role(models.TextChoices):
@@ -57,3 +58,12 @@ class StudentProfile(models.Model):
 
     def __str__(self):
         return f"{self.registration_number} - {self.user.get_full_name() or self.user.username}"
+    
+    def clean(self):
+        super().clean() # call the parent class clean method 
+        
+        if self.start_date and self.end_date and self.end_date < self.start_date:
+            # This triggers a clean error message specifically on the end_date field 
+            raise ValidationError({
+                'end_date': "The end date cannot be earlier than the start date."
+            })

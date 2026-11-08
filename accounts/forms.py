@@ -15,6 +15,19 @@ class StudentRegistrationForm(forms.ModelForm):
     attachment_start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
     attachment_end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
     
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Grab the dates the user just typed into the form 
+        start = cleaned_data.get('attachment_start_date')
+        end = cleaned_data.get('attachment_end_date')
+        
+        # check if the logic is backwards 
+        if start and end and end < start:
+            # this attaches a clean ui error message directly to the end_date input box 
+            self.add_error('attachment_end_date', "The end date cannot be earlier than the start date.")
+        return cleaned_data
+    
     
     class Meta:
         model = User

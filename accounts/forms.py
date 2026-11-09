@@ -18,14 +18,24 @@ class StudentRegistrationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         
-        # Grab the dates the user just typed into the form 
+        # 1. grab all fields needed for cross-validation 
+        password = cleaned_data.get("password")
+        password_confirm = cleaned_data.get("password_confirm")
         start = cleaned_data.get('attachment_start_date')
         end = cleaned_data.get('attachment_end_date')
         
-        # check if the logic is backwards 
+        # 2. Check for password mismatch 
+        if password and password_confirm and password != password_confirm:
+            self.add_error('password_confirm', "Passwords do not match.")
+            
+        # 3. Check for backward dates 
         if start and end and end < start:
-            # this attaches a clean ui error message directly to the end_date input box 
             self.add_error('attachment_end_date', "The end date cannot be earlier than the start date.")
+            
+        # 4. If any errors were added, raise ValidationError to halt the form 
+        if self.errors:
+            raise forms.ValidationError("Please correct the errors below.")
+        
         return cleaned_data
     
     
@@ -33,15 +43,6 @@ class StudentRegistrationForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'username']
         
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        password_confirm = cleaned_data.get("password_confirm")
-        
-        if password and password_confirm and password != password_confirm:
-            self.add_error('password_confirm', "Passwords do not match.")
-            
-        return cleaned_data 
     
     def clean_attachment_start_date(self):
         start_date = self.cleaned_data.get('attachment_start_date')

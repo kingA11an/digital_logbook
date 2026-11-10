@@ -389,6 +389,9 @@
   .mr-2 {
     margin-right: calc(var(--spacing) * 2);
   }
+  .mr-3 {
+    margin-right: calc(var(--spacing) * 3);
+  }
   .mb-0 {
     margin-bottom: 0px;
   }
@@ -1305,8 +1308,14 @@
     .hover\:bg-red-700:hover {
       background-color: var(--color-red-700);
     }
+    .hover\:bg-slate-800:hover {
+      background-color: var(--color-slate-800);
+    }
     .hover\:text-gray-900:hover {
       color: var(--color-gray-900);
+    }
+    .hover\:text-white:hover {
+      color: var(--color-white);
     }
     .hover\:underline:hover {
       text-decoration-line: underline;

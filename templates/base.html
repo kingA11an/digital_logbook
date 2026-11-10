@@ -182,6 +182,21 @@
             </a>
           </li>
           {% endif %}
+          <!-- this block renders only if the logged in user is an admin/staff -->
+          {% if request.user.is_staff %}
+            <div class="mt-8">
+                  <p class="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                    Admin Tools
+                  </p>
+                  <a href="{% url 'accounts:send_supervisor_invite' %}"
+                      class="flex items-center px-4 py-2 text-sm font-medium text-indigo-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
+                      <svg class ="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Invite Supervisor
+                  </a>
+              </div>
+          {% endif %}
 
           <!-- COMMON NAVIGATION (Everyone gets a profile) -->
           <li>

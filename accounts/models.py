@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
+import uuid 
 
 class User(AbstractUser):
     class Role(models.TextChoices):
@@ -67,3 +68,18 @@ class StudentProfile(models.Model):
             raise ValidationError({
                 'attachment_end_date': "The end date cannot be earlier than the start date."
             })
+            
+class SupervisorInvitation(models.Model):
+    ROLE_CHOICES = (
+        ('FIELD', 'Field Supervisor'),
+        ('UNI', 'University Supervisor'),
+    )
+    
+    email = models.EmailField(unique=True)
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __Str__(self):
+        return f"{self.email} - {self.get_role_display()} - Used: {self.is_used}"

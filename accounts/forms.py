@@ -57,4 +57,26 @@ class StudentRegistrationForm(forms.ModelForm):
             raise ValidationError("Attachment end dates cannot fall on a Sunday.")
         return end_date
     
+class SupervisorRegistrationForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=50)
+    last_name = forms.CharField(max_length=50)
+    password = forms.CharField(widget=forms.PasswordInput())
+    password_confirm = forms.CharField(widget=forms.PasswordInput())
+        
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
+            
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        password_confirm = cleaned_data.get("password_confirm")
+        
+        if password and password_confirm and password != password_confirm:
+            self.add_error('password_confirm', "Passwords do not match.")
+            
+        if self.errors:
+            raise forms.ValidationError("Please correct the errors below.")
+        
+        return cleaned_data
     

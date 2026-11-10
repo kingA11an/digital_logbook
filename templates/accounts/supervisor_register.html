@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl">
+        <div class="text-center">
+            <div class="mx-auto h-12 w-12 rounded-xl bg-indigo-600/20 flex items-center justify-center text-indigo-400 mb-4 border border-indigo-500/30">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-white">Complete Your Account</h2>
+            <p class="mt-2 text-sm text-slate-400">Registering as <span class="font-medium text-indigo-400">{{ email }}</span></p>
+        </div>
+
+        <form method="POST" action="" class="mt-8 space-y-4">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs">
+                    {{ form.non_field_errors.0 }}
+                </div>
+            {% endif %}
+
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">First Name</label>
+                <input type="text" name="first_name" required placeholder="John"
+                    class="w-full px-4 py-2.5 bg-slate-800/80 border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                {% if form.first_name.errors %}
+                    <p class="mt-1 text-xs text-rose-400">{{ form.first_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Last Name</label>
+                <input type="text" name="last_name" required placeholder="Doe"
+                    class="w-full px-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                {% if form.last_name.errors %}
+                    <p class="mt-1 text-xs text-rose-400">{{ form.last_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                <input type="password" name="password" required placeholder="Create a strong password"
+                    class="w-full px-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                {% if form.password.errors %}
+                    <p class="mt-1 text-xs text-rose-400">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Confirm Password</label>
+                <input type="password" name="password_confirm" required placeholder="Confirm your password"
+                    class="w-full px-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                {% if form.password_confirm.errors %}
+                    <p class="mt-1 text-xs text-rose-400">{{ form.password_confirm.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="pt-4">
+                <button type="submit"
+                    class="w-full py-3 px-4 border border-transparent rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition shadow-lg shadow-indigo-600/20">
+                    Create Supervisor Account
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+            

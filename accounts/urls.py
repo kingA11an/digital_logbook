@@ -13,4 +13,8 @@ urlpatterns = [
     path('register/', views.register_student, name='register'),
     path('profile/', views.user_profile, name='profile'),
     path('redirect/', views.role_redirect, name='role_redirect'),
+    
+    #supervisor invitation links
+    path('invite-supervisor/', views.send_supervisor_invite, name='send_supervisor_invite'),
+    path('register/supervisor/<uuid:token>/', views.supervisor_register, name='supervisor_register'),
 ]

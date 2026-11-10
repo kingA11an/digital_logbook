@@ -103,26 +103,33 @@ def send_supervisor_invite(request):
         email = request.POST.get('email')
         role = request.POST.get('role')
         
-        # 1. create or update the invitation 
-        invitation, created = SupervisorInvitation.objects.update_or_create(
-            email=email,
-            defaults={'role': role, 'is_used': False, 'token': uuid.uuid4()}
-        )
+        try:
+            # 1. create or update the invitation 
+            invitation, created = SupervisorInvitation.objects.update_or_create(
+                email=email,
+                defaults={'role': role, 'is_used': False, 'token': uuid.uuid4()}
+            )
+            
+            # 2. build the secure, clickable url 
+            invite_path = reverse('accounts:supervisor_register', kwargs={'token': invitation.token})
+            full_link = request.build_absolute_uri(invite_path)
+            
+            # 3. Send the email using your configured gmail.smtp
+            role_name = "University" if role == "UNI" else "Field"
+            send_mail(
+                subject=f"Invitation to join TrueLog as a {role_name} Supervisor",
+                message=f"You have been invited to TrueLog.\n\nClick here to set up your account: {full_link}\n\nThis link can only be used once.",
+                from_email=None,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            
+            messages.success(request, f"Invitation sent successfully to {email}!")
+            
+        except Exception as e:
+            # catch the exact smtp error and display it on the page 
+            messages.error(request, f"SMTP Error: {str(e)}")
         
-        # 2. Build the secure, clickable URL 
-        invite_path = reverse('accounts:supervisor_register', kwargs={'token':invitation.token})
-        full_link = request.build_absolute_uri(invite_path)
-        
-        # 3. send the email using your configured gmail smtp 
-        role_name = "University" if role == "UNI" else "Field"
-        send_mail(
-            subject=f"Invitation to join Truelog as a {role_name} Supervisor",
-            message=f"You have been invited to Truelog.\n\nClick here to set up your account: {full_link}\n\nThis link can only be used once.",
-            from_email=None, # uses DEFAULT_FROM_EMAIL from settings 
-            recipient_list=[email],
-        )
-        
-        messages.success(request, f"Invitation sent successfully to {email}!")
         return redirect('accounts:send_supervisor_invite')
     return render(request, 'accounts/send_invite.html')
 

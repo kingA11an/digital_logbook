@@ -134,37 +134,49 @@ def send_supervisor_invite(request):
     return render(request, 'accounts/send_invite.html')
 
 def supervisor_register(request, token):
-    # 1. verify the token is valid and hasn't been used 
-    invitation = get_object_or_404(SupervisorInvitation, token=token, is_used=False)
-    
+    # 1. Fetch the invitation by token alone
+    try:
+        invitation = SupervisorInvitation.objects.get(token=token)
+    except SupervisorInvitation.DoesNotExist:
+        return render(request, 'accounts/invite_invalid.html', {
+            'title': 'Invalid Invitation Link',
+            'message': 'This invitation link does not exist or has been removed.'
+        })
+
+    # 2. Gracefully handle already-used links
+    if invitation.is_used:
+        return render(request, 'accounts/invite_invalid.html', {
+            'title': 'Link Already Used',
+            'message': 'This registration link has already been used to set up a supervisor account. Please log in instead.'
+        })
+
+    # 3. Handle active registration
     if request.method == 'POST':
         form = SupervisorRegistrationForm(request.POST)
         if form.is_valid():
-            # 2. Create the user 
             user = form.save(commit=False)
             user.email = invitation.email
             user.username = invitation.email
             user.set_password(form.cleaned_data['password'])
             
-            # 3. assign role and create profile based on the invitation 
             if invitation.role == 'UNI':
-                user.role = User.Role.UNI_SUPERVISOR
+                user.role = User.Role.UNIVERSITY_SUPERVISOR
                 user.save()
                 UniversitySupervisorProfile.objects.create(user=user)
             else:
                 user.role = User.Role.FIELD_SUPERVISOR
                 user.save()
                 FieldSupervisorProfile.objects.create(user=user)
-            
-            # 4. burn the token so it can't be used again
-            invitation.is_used = True 
+                
+            invitation.is_used = True
             invitation.save()
             
-            # 5. Log them in and route them 
             login(request, user)
-            return redirect('logbook:supervisor_dashboard')
-        else:
-            # pre-fill the form with their locked email 
-            form = SupervisorRegistrationForm(initial={'email': invitation.email})
-            
-        return render(request, 'accounts/supervisor_register.html', {'form': form, 'email': invitation.email})
+            return redirect('logbook:supervisor_dashboard') 
+    else:
+        form = SupervisorRegistrationForm(initial={'email': invitation.email})
+        
+    return render(request, 'accounts/supervisor_register.html', {
+        'form': form, 
+        'email': invitation.email
+    })

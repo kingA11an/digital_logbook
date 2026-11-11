@@ -11,6 +11,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages 
 from .models import SupervisorInvitation
 import uuid
+from core.emails import send_resend_email
 
 
 
@@ -104,32 +105,32 @@ def send_supervisor_invite(request):
         role = request.POST.get('role')
         
         try:
-            # 1. create or update the invitation 
+            # 1. create or update invitation token 
             invitation, created = SupervisorInvitation.objects.update_or_create(
                 email=email,
                 defaults={'role': role, 'is_used': False, 'token': uuid.uuid4()}
             )
             
-            # 2. build the secure, clickable url 
+            # 2. build secure registration link 
             invite_path = reverse('accounts:supervisor_register', kwargs={'token': invitation.token})
             full_link = request.build_absolute_uri(invite_path)
             
-            # 3. Send the email using your configured gmail.smtp
-            role_name = "University" if role == "UNI" else "Field"
-            send_mail(
-                subject=f"Invitation to join TrueLog as a {role_name} Supervisor",
-                message=f"You have been invited to TrueLog.\n\nClick here to set up your account: {full_link}\n\nThis link can only be used once.",
-                from_email=None,
-                recipient_list=[email],
-                fail_silently=False,
+            # 3. send email via resend http api 
+            role_title = "University" if role == "UNI" else "Field"
+            subject = f"Invitation to join TrueLog as {role_title} Supervisor"
+            message = (
+                f"Hello,\n\n"
+                f"You have been invited to join TrueLog as a {role_title} Supervisor.\n\n"
+                f"Please click the link below to set up your account:\n{full_link}\n\n"
+                f"Note: This link can only be used once."
             )
             
-            messages.success(request, f"Invitation sent successfully to {email}!")
+            send_resend_email(to_email=email, subject=subject, body_text=message)
             
+            messages.success(request, f"Invitation email successfully sent to {email} via Resend API!")
         except Exception as e:
-            # catch the exact smtp error and display it on the page 
-            messages.error(request, f"SMTP Error: {str(e)}")
-        
+            messages.error(request, f"Failed to send invitation email: {str(e)}")
+            
         return redirect('accounts:send_supervisor_invite')
     return render(request, 'accounts/send_invite.html')
 

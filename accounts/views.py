@@ -11,7 +11,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages 
 from .models import SupervisorInvitation
 import uuid
-from core.emails import send_resend_email
+from core.emails import send_brevo_email
 
 
 
@@ -125,7 +125,7 @@ def send_supervisor_invite(request):
                 f"Note: This link can only be used once."
             )
             
-            send_resend_email(to_email=email, subject=subject, body_text=message)
+            send_brevo_email(to_email=email, subject=subject, body_text=message)
             
             messages.success(request, f"Invitation email successfully sent to {email} via Resend API!")
         except Exception as e:

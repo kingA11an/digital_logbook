@@ -1,23 +1,25 @@
-import os 
-import resend 
+import os
+import requests
 
-resend.api_key = os.environ.get('RESEND_API_KEY')
-
-def send_resend_email(to_email, subject, body_text):
-    """
-    Utility function to send emails via Resend HTTP API.
-    Bypasses blocked SMTP ports on cloud hosts like Render 
-    """
-    if not resend.api_key:
-        raise ValueError("RESEND_API_KEY environment variable is not set.")
+def send_brevo_email(to_email, subject, body_text):
+    api_key = os.environ.get("BREVO_API_KEY")
+    if not api_key:
+        raise ValueError("BREVO_API_KEY environment variable is not set.")
     
-    params = {
-        # Resend provides 'onboarding@resend.dev' for testing without domain verification 
-        "from": "TrueLog Support <onboarding@resend.dev>",
-        "to": [to_email],
-        "subject": subject,
-        "text": body_text,
+    url = "https://api.brevo.com/v3/smtp/email"
+    
+    headers = {
+        "accept": "application/json",
+        "api-key": api_key,
+        "content-type": "application/json"
     }
     
-    response = resend.Emails.send(params)
-    return response
+    payload = {
+        "sender": {"name": "TrueLog Support", "email": "truelog.support@gmail.com"},
+        "to": [{"email": to_email}],
+        "subject": subject,
+        "textContent": body_text
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()

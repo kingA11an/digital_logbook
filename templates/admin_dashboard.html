@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}System Administration | TrueLog{% endblock %}
+
+{% block content %}
+{# The wrapper cancels base.html's <main> padding so slate-950 fills the whole content area #}
+<div class="-mx-4 -my-8 min-h-[calc(100vh-4rem)] bg-slate-950 px-4 py-8 sm:-mx-6 sm:px-6 lg:-mx-8 lg:-my-10 lg:px-8 lg:py-10">
+<div class="mx-auto max-w-7xl space-y-6">
+
+    <!-- Welcome Banner -->
+    <div class="flex flex-col gap-4 rounded-md border border-slate-800 bg-slate-900 p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-4">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-slate-800 bg-slate-950 text-indigo-500">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                </svg>
+            </span>
+            <div class="min-w-0">
+                <h1 class="text-2xl font-semibold text-white">System Administration</h1>
+                <p class="mt-0.5 truncate text-sm text-slate-400">
+                    Signed in as <span class="font-medium text-slate-200">{{ request.user.email|default:request.user.username }}</span>
+                </p>
+            </div>
+        </div>
+        <span class="inline-flex w-fit items-center gap-2 rounded-md border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-300">
+            <span class="h-2 w-2 rounded-sm bg-indigo-500" aria-hidden="true"></span>
+            Superuser access
+        </span>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <!-- Total Students -->
+        <div class="rounded-md border border-slate-800 bg-slate-900 p-5">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-slate-400">Total Students</p>
+                <span class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-800 bg-slate-950 text-indigo-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                    </svg>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-semibold text-white">{{ total_students|default:0 }}</p>
+            <p class="mt-1 text-xs text-slate-500">Registered student accounts</p>
+        </div>
+
+        <!-- Active Supervisors -->
+        <div class="rounded-md border border-slate-800 bg-slate-900 p-5">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-slate-400">Active Supervisors</p>
+                <span class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-800 bg-slate-950 text-indigo-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                    </svg>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-semibold text-white">{{ active_supervisors|default:0 }}</p>
+            <p class="mt-1 text-xs text-slate-500">Field and university supervisors</p>
+        </div>
+
+        <!-- System Errors -->
+        <div class="rounded-md border border-slate-800 bg-slate-900 p-5">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-slate-400">System Errors</p>
+                <span class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-800 bg-slate-950 text-amber-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-semibold text-white">{{ system_errors|default:0 }}</p>
+            <p class="mt-1 text-xs text-slate-500">Logged in the last 24 hours</p>
+        </div>
+
+        <!-- Pending Invites -->
+        <div class="rounded-md border border-slate-800 bg-slate-900 p-5">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-slate-400">Pending Invites</p>
+                <span class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-800 bg-slate-950 text-amber-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-semibold text-white">{{ pending_invites|default:0 }}</p>
+            <p class="mt-1 text-xs text-slate-500">Supervisor invites awaiting signup</p>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="rounded-md border border-indigo-500/40 bg-slate-900">
+        <div class="flex items-center gap-2 border-b border-slate-800 px-6 py-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-indigo-500" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+            </svg>
+            <h2 class="text-base font-semibold text-white">Quick Actions</h2>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 p-6 md:grid-cols-3">
+
+            {# TODO: replace "#" with your create-test-student URL, e.g. {% url 'accounts:create_test_student' %} #}
+            <a href="#"
+               class="flex items-center gap-3 rounded-md border border-transparent bg-indigo-500 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 shrink-0" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                </svg>
+                <span>Create Test User (Student)</span>
+            </a>
+
+            <a href="{% url 'accounts:send_supervisor_invite' %}"
+               class="flex items-center gap-3 rounded-md border border-slate-700 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-100 hover:border-indigo-500 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 shrink-0 text-amber-500" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                </svg>
+                <span>Send Supervisor Invite</span>
+            </a>
+
+            {# TODO: replace "#" with your departments URL, e.g. {% url 'logbook:manage_departments' %} #}
+            <a href="#"
+               class="flex items-center gap-3 rounded-md border border-slate-700 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-100 hover:border-indigo-500 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 shrink-0 text-amber-500" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+                </svg>
+                <span>Manage Departments</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Audit Log -->
+    <div class="rounded-md border border-slate-800 bg-slate-900">
+        <div class="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-indigo-500" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <h2 class="text-base font-semibold text-white">Recent Activity</h2>
+            </div>
+            <span class="text-xs text-slate-500">Audit log</span>
+        </div>
+
+        {% if audit_logs %}
+        {# Scroll container gives the sticky header something to stick to #}
+        <div class="max-h-[28rem] overflow-auto">
+            <table class="min-w-full text-left text-sm">
+                <thead class="sticky top-0 z-10">
+                    <tr class="border-b border-slate-800 bg-slate-900">
+                        <th scope="col" class="bg-slate-900 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Timestamp</th>
+                        <th scope="col" class="bg-slate-900 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Actor</th>
+                        <th scope="col" class="bg-slate-900 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Activity</th>
+                        <th scope="col" class="bg-slate-900 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Category</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                    {% for entry in audit_logs %}
+                    <tr class="hover:bg-slate-800">
+                        <td class="whitespace-nowrap px-6 py-4 text-slate-400">{{ entry.timestamp|date:"M d, Y H:i" }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 font-medium text-white">{{ entry.actor }}</td>
+                        <td class="px-6 py-4 text-slate-300">{{ entry.action }}</td>
+                        <td class="whitespace-nowrap px-6 py-4">
+                            {% if entry.category == 'ERROR' %}
+                            <span class="inline-flex items-center rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-500">{{ entry.category }}</span>
+                            {% else %}
+                            <span class="inline-flex items-center rounded-md border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-400">{{ entry.category|default:"SYSTEM" }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center px-6 py-14 text-center">
+            <span class="flex h-12 w-12 items-center justify-center rounded-md border border-slate-800 bg-slate-950 text-slate-500">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+            </span>
+            <h3 class="mt-4 text-sm font-semibold text-white">No recent activity</h3>
+            <p class="mt-1 text-sm text-slate-400">Report submissions and registrations will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+</div>
+{% endblock %}

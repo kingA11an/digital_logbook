@@ -12,6 +12,8 @@ from django.contrib import messages
 from .models import SupervisorInvitation
 import uuid
 from core.emails import send_brevo_email
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
 
 
 
@@ -86,17 +88,22 @@ def user_profile(request):
 
 @login_required(login_url='accounts:login')
 def role_redirect(request):
-    """
-    Traffic cop: Routes users to their specific dashboards after login.
-    """
-    if request.user.role == User.Role.FIELD_SUPERVISOR:
+    user = request.user
+
+    # 1. intercept superusers and send them to the custom truelog admin ui 
+    if user.is_superuser or user.is_staff:
+        return redirect('admin_dashboard')
+    
+    # 2. route standard roles to their respective dashboards
+    if user.role == 'STUDENT':
+        return redirect('logbook:student_dashboard')
+    elif user.role == 'UNI':
+        return redirect('logbook:university_dashboard')
+    elif user.role == 'FIELD':
         return redirect('logbook:supervisor_dashboard')
-        
-    elif request.user.role == User.Role.UNI_SUPERVISOR:
-        return redirect('logbook:university_dashboard') # We will build this later
-        
-    # Default fallback is the student dashboard
-    return redirect('logbook:student_dashboard')
+    
+    # Fallback just in case 
+    return redirect('home')
 
 @staff_member_required 
 def send_supervisor_invite(request):
@@ -181,3 +188,9 @@ def supervisor_register(request, token):
         'form': form, 
         'email': invitation.email
     })
+    
+class TrueLogLoginView(LoginView):
+    template_name = 'accounts/login.html'
+    
+    def get_success_url(self):
+        return reverse_lazy('accounts:role_redirect')

@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+
+{% block title %}Provision User | TrueLog{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl">
+
+    <!-- Back Link -->
+    <a href="{% url 'admin_dashboard' %}"
+       class="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-[#0a0f1c]">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <!-- Django Messages -->
+    {% if messages %}
+    <div class="mb-6 space-y-3">
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        <div class="flex items-start gap-3 rounded-md border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950" role="status">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-400" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <p class="text-sm font-medium text-green-800 dark:text-green-300">{{ message }}</p>
+        </div>
+        {% elif message.tags == 'error' %}
+        <div class="flex items-start gap-3 rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+            </svg>
+            <p class="text-sm font-medium text-red-800 dark:text-red-300">{{ message }}</p>
+        </div>
+        {% elif message.tags == 'warning' %}
+        <div class="flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            </svg>
+            <p class="text-sm font-medium text-amber-800 dark:text-amber-300">{{ message }}</p>
+        </div>
+        {% else %}
+        <div class="flex items-start gap-3 rounded-md border border-gray-200 bg-white p-4 dark:border-slate-800 dark:bg-[#0f172a]" role="status">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+            </svg>
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ message }}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Header Card -->
+    <div class="mb-6 flex flex-col gap-4 rounded-md border border-gray-200 bg-white p-6 dark:border-slate-800 dark:bg-[#0f172a] sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-4">
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-brand-500 dark:border-slate-800 dark:bg-[#0a0f1c]">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                </svg>
+            </span>
+            <div>
+                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Provision User Account</h1>
+                <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Create a student or supervisor account directly, without an invite.</p>
+            </div>
+        </div>
+        <button type="button" id="quick-fill-btn"
+                class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-transparent dark:text-white dark:hover:bg-[#0a0f1c] dark:focus:ring-offset-[#0f172a]">
+            <span aria-hidden="true">⚡</span>
+            Quick-Fill Demo Student
+        </button>
+    </div>
+
+    <!-- Form Card -->
+    <div class="rounded-md border border-gray-200 bg-white dark:border-slate-800 dark:bg-[#0f172a]">
+        <form method="POST" id="create-user-form">
+            {% csrf_token %}
+
+            <!-- Account Details -->
+            <div class="p-6">
+                <div class="mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-brand-500" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Account Details</h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                    <!-- First Name -->
+                    <div>
+                        <label for="first_name" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">First name</label>
+                        <input type="text" name="first_name" id="first_name" required value="{{ request.POST.first_name }}"
+                               class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-[#0a0f1c] dark:text-white dark:placeholder-gray-500">
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label for="last_name" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Last name</label>
+                        <input type="text" name="last_name" id="last_name" required value="{{ request.POST.last_name }}"
+                               class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-[#0a0f1c] dark:text-white dark:placeholder-gray-500">
+                    </div>
+
+                    <!-- Email -->
+                    <div class="sm:col-span-2">
+                        <label for="email" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Email address</label>
+                        <input type="email" name="email" id="email" required value="{{ request.POST.email }}" placeholder="name@example.com"
+                               class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-[#0a0f1c] dark:text-white dark:placeholder-gray-500">
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Temporary password</label>
+                        <div class="relative">
+                            <input type="password" name="password" id="password" required autocomplete="new-password"
+                                   class="block w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-[#0a0f1c] dark:text-white dark:placeholder-gray-500">
+                            <button type="button" id="toggle-password"
+                                    class="absolute inset-y-0 right-0 flex items-center rounded-md px-3 text-gray-400 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-gray-500 dark:hover:text-white"
+                                    aria-label="Show password" aria-pressed="false">
+                                <!-- Eye (shown when hidden) -->
+                                <svg id="icon-eye" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                </svg>
+                                <!-- Eye slash (shown when visible) -->
+                                <svg id="icon-eye-slash" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="hidden h-4 w-4" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Role -->
+                    <div>
+                        <label for="role" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Role</label>
+                        <div class="relative">
+                            <select name="role" id="role" required
+                                    class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-[#0a0f1c] dark:text-white">
+                                <option value="STUDENT" {% if not request.POST.role or request.POST.role == 'STUDENT' %}selected{% endif %}>Student</option>
+                                <option value="UNI" {% if request.POST.role == 'UNI' %}selected{% endif %}>University Supervisor</option>
+                                <option value="FIELD" {% if request.POST.role == 'FIELD' %}selected{% endif %}>Field Supervisor</option>
+                            </select>
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 dark:text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Attachment Details (conditional) -->
+            <div id="student-section" class="border-t border-gray-200 p-6 dark:border-slate-800">
+                <div class="mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-brand-500" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                    </svg>
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Student Attachment Details</h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                    <!-- Registration Number -->
+                    <div>
+                        <label for="registration_number" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Registration number</label>
+                        <input type="text" name="registration_number" id="registration_number" value="{{ request.POST.registration_number }}" placeholder="CIT-221-014/2023"
+                               class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-[#0a0f1c] dark:text-white dark:placeholder-gray-500">
+                    </div>
+
+                    <!-- Course -->
+                    <div>
+                        <label for="course" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Course</label>
+                        <input type="text" name="course" id="course" value="{{ request.POST.course }}" placeholder="BSc. Computer Technology"
+                               class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-[#0a0f1c] dark:text-white dark:placeholder-gray-500">
+                    </div>
+
+                    <!-- Start Date -->
+                    <div>
+                        <label for="attachment_start_date" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Attachment start date</label>
+                        <input type="date" name="attachment_start_date" id="attachment_start_date" value="{{ request.POST.attachment_start_date }}"
+                               class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-[#0a0f1c] dark:text-white dark:[color-scheme:dark]">
+                    </div>
+
+                    <!-- End Date -->
+                    <div>
+                        <label for="attachment_end_date" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Attachment end date</label>
+                        <input type="date" name="attachment_end_date" id="attachment_end_date" value="{{ request.POST.attachment_end_date }}"
+                               class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-[#0a0f1c] dark:text-white dark:[color-scheme:dark]">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-3 rounded-b-md border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-slate-800 dark:bg-[#0a0f1c]">
+                <a href="{% url 'admin_dashboard' %}"
+                   class="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:border-slate-700 dark:bg-transparent dark:text-white dark:hover:bg-[#0f172a] dark:focus:ring-offset-[#0a0f1c]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="inline-flex items-center gap-1.5 rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#0a0f1c]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                    Create Account
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        var roleSelect = document.getElementById('role');
+        var studentSection = document.getElementById('student-section');
+        var studentFields = [
+            'registration_number',
+            'course',
+            'attachment_start_date',
+            'attachment_end_date'
+        ].map(function (id) { return document.getElementById(id); });
+
+        var passwordInput = document.getElementById('password');
+        var toggleBtn = document.getElementById('toggle-password');
+        var iconEye = document.getElementById('icon-eye');
+        var iconEyeSlash = document.getElementById('icon-eye-slash');
+
+        // Show the student section only for STUDENT and toggle `required` to match
+        function syncRoleFields() {
+            var isStudent = roleSelect.value === 'STUDENT';
+            studentSection.classList.toggle('hidden', !isStudent);
+            studentFields.forEach(function (field) {
+                field.required = isStudent;
+            });
+        }
+
+        function setPasswordVisible(visible) {
+            passwordInput.type = visible ? 'text' : 'password';
+            iconEye.classList.toggle('hidden', visible);
+            iconEyeSlash.classList.toggle('hidden', !visible);
+            toggleBtn.setAttribute('aria-pressed', visible ? 'true' : 'false');
+            toggleBtn.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+        }
+
+        // YYYY-MM-DD in local time (toISOString would shift the day in some timezones)
+        function toDateInputValue(date) {
+            var y = date.getFullYear();
+            var m = String(date.getMonth() + 1).padStart(2, '0');
+            var d = String(date.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + d;
+        }
+
+        function quickFillDemoStudent() {
+            var today = new Date();
+            var end = new Date(today);
+            end.setDate(end.getDate() + 12 * 7); // 12 weeks
+
+            var rand = Math.floor(100 + Math.random() * 900); // 3-digit
+
+            document.getElementById('first_name').value = 'Jane';
+            document.getElementById('last_name').value = 'Kamau';
+            document.getElementById('email').value = 'student.demo' + rand + '@truelog.test';
+            passwordInput.value = 'TestPass123!';
+            roleSelect.value = 'STUDENT';
+            document.getElementById('registration_number').value = 'CIT-221-014/2023';
+            document.getElementById('course').value = 'BSc. Computer Technology';
+            document.getElementById('attachment_start_date').value = toDateInputValue(today);
+            document.getElementById('attachment_end_date').value = toDateInputValue(end);
+
+            syncRoleFields();
+            setPasswordVisible(true); // reveal so you can see the demo credentials
+        }
+
+        roleSelect.addEventListener('change', syncRoleFields);
+        toggleBtn.addEventListener('click', function () {
+            setPasswordVisible(passwordInput.type === 'password');
+        });
+        document.getElementById('quick-fill-btn').addEventListener('click', quickFillDemoStudent);
+
+        syncRoleFields(); // set the correct initial state (also handles re-rendered POST errors)
+    })();
+</script>
+{% endblock %}

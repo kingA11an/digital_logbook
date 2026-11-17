@@ -6,31 +6,32 @@ from django.db.models import Sum
 from logbook.models import LogEntry, WeeklyReport
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from django.urls import reverse 
-from django.contrib.admin.views.decorators import staff_member_required 
-from django.contrib import messages 
+from django.urls import reverse
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
 from .models import SupervisorInvitation
 import uuid
 from core.emails import send_brevo_email
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
+from django.db import transaction
 
 
 
 def register_student(request):
-    # Redirect if they are already logged in 
+    # Redirect if they are already logged in
     if request.user.is_authenticated:
         return redirect('logbook:student_dashboard')
-    
+
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            # 1. Create the user (and set their role to Student) 
+            # 1. Create the user (and set their role to Student)
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])  # FIXED: cleaned_data
             user.role = User.Role.STUDENT
             user.save()
-            
+
             # 2. create their student profile with the remaining dates/data
             StudentProfile.objects.create(
                 user=user,
@@ -39,14 +40,14 @@ def register_student(request):
                 attachment_start_date=form.cleaned_data['attachment_start_date'],
                 attachment_end_date=form.cleaned_data['attachment_end_date']
             )
-            
-            # 3. log them in automatically and send to dashboard 
+
+            # 3. log them in automatically and send to dashboard
             login(request, user)
             return redirect('logbook:student_dashboard')
     else:
         # FIXED: This now properly runs on a GET request
         form = StudentRegistrationForm()
-        
+
     # FIXED: This now properly returns the template for both GET and invalid POST requests
     return render(request, 'accounts/register.html', {'form': form})
 
@@ -57,22 +58,22 @@ def user_profile(request):
     if request.user.role == 'FIELD_SUPERVISOR':
         profile = request.user.field_supervisor_profile
         return render(request, 'accounts/supervisor_profile.html', {'profile': profile})
-        
+
     # 2. UNI SUPERVISOR PROFILE
     elif request.user.role == 'UNI_SUPERVISOR':
         # Safely fetch the profile directly from the model
         from django.shortcuts import get_object_or_404
         profile = get_object_or_404(UniversitySupervisorProfile, user=request.user)
         return render(request, 'accounts/uni_profile.html', {'profile': profile})
-        
+
     # 3. STUDENT PROFILE (Default)
     profile = getattr(request.user, 'student_profile', None)
     if not profile:
         return redirect('accounts:login') # Safety fallback
-        
+
     # Calculate Total Approved Hours for Student
     approved_reports = WeeklyReport.objects.filter(
-        student=profile, 
+        student=profile,
         status=WeeklyReport.Status.APPROVED
     )
     from django.db.models import Sum # Ensure this is imported at the top!
@@ -90,10 +91,10 @@ def user_profile(request):
 def role_redirect(request):
     user = request.user
 
-    # 1. intercept superusers and send them to the custom truelog admin ui 
+    # 1. intercept superusers and send them to the custom truelog admin ui
     if user.is_superuser or user.is_staff:
         return redirect('admin_dashboard')
-    
+
     # 2. route standard roles to their respective dashboards
     if user.role == 'STUDENT':
         return redirect('logbook:student_dashboard')
@@ -101,28 +102,28 @@ def role_redirect(request):
         return redirect('logbook:university_dashboard')
     elif user.role == 'FIELD':
         return redirect('logbook:supervisor_dashboard')
-    
-    # Fallback just in case 
+
+    # Fallback just in case
     return redirect('home')
 
-@staff_member_required 
+@staff_member_required
 def send_supervisor_invite(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         role = request.POST.get('role')
-        
+
         try:
-            # 1. create or update invitation token 
+            # 1. create or update invitation token
             invitation, created = SupervisorInvitation.objects.update_or_create(
                 email=email,
                 defaults={'role': role, 'is_used': False, 'token': uuid.uuid4()}
             )
-            
-            # 2. build secure registration link 
+
+            # 2. build secure registration link
             invite_path = reverse('accounts:supervisor_register', kwargs={'token': invitation.token})
             full_link = request.build_absolute_uri(invite_path)
-            
-            # 3. send email via resend http api 
+
+            # 3. send email via resend http api
             role_title = "University" if role == "UNI" else "Field"
             subject = f"Invitation to join TrueLog as {role_title} Supervisor"
             message = (
@@ -131,13 +132,13 @@ def send_supervisor_invite(request):
                 f"Please click the link below to set up your account:\n{full_link}\n\n"
                 f"Note: This link can only be used once."
             )
-            
+
             send_brevo_email(to_email=email, subject=subject, body_text=message)
-            
+
             messages.success(request, f"Invitation email successfully sent to {email} via Resend API!")
         except Exception as e:
             messages.error(request, f"Failed to send invitation email: {str(e)}")
-            
+
         return redirect('accounts:send_supervisor_invite')
     return render(request, 'accounts/send_invite.html')
 
@@ -166,7 +167,7 @@ def supervisor_register(request, token):
             user.email = invitation.email
             user.username = invitation.email
             user.set_password(form.cleaned_data['password'])
-            
+
             if invitation.role == 'UNI':
                 user.role = User.Role.UNIVERSITY_SUPERVISOR
                 user.save()
@@ -175,22 +176,105 @@ def supervisor_register(request, token):
                 user.role = User.Role.FIELD_SUPERVISOR
                 user.save()
                 FieldSupervisorProfile.objects.create(user=user)
-                
+
             invitation.is_used = True
             invitation.save()
-            
+
             login(request, user)
-            return redirect('logbook:supervisor_dashboard') 
+            return redirect('logbook:supervisor_dashboard')
     else:
         form = SupervisorRegistrationForm(initial={'email': invitation.email})
-        
+
     return render(request, 'accounts/supervisor_register.html', {
-        'form': form, 
+        'form': form,
         'email': invitation.email
     })
-    
+
 class TrueLogLoginView(LoginView):
     template_name = 'accounts/login.html'
-    
+
     def get_success_url(self):
         return reverse_lazy('accounts:role_redirect')
+
+@staff_member_required(login_url='accounts:login')
+def create_user_admin(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip().lower()
+        password = request.POST.get('password', '').strip()
+        role = request.POST.get('role', 'STUDENT')
+
+        if User.objects.filter(email=email).exists() or User.objects.filter(username=email).exists():
+            messages.error(request, f"A user with email {email} already exists.")
+            return redirect('accounts:create_user')
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name,
+                )
+
+                if role == 'STUDENT':
+                    user.role = User.Role.STUDENT
+                    user.save()
+                    StudentProfile.objects.create(
+                        user=user,
+                        registration_number=request.POST.get('registration_number', '').strip(),
+                        course=request.POST.get('course', '').strip(),
+                        attachment_start_date=request.POST.get('attachment_start_date'),
+                        attachment_end_date=request.POST.get('attachment_end_date'),
+                    )
+                elif role == 'UNI':
+                    user.role = User.Role.UNI_SUPERVISOR
+                    User.save()
+                    UniversitySupervisorProfile.objects.create(user=user)
+                elif role == 'FIELD':
+                    user.role = User.Role.FIELD_SUPERVISOR
+                    User.save()
+                    FieldSupervisorProfile.objects.create(user=user)
+
+            messages.success(
+                request,
+                f"Account created for {first_name} {last_name} ({email}) with password: {password}"
+            )
+            return redirect('admin_dashboard')
+
+        except Exception as e:
+            messages.error(request, f"Error creating user: {str(e)}")
+
+    return render(request, 'accounts/create_user.html')
+
+@staff_member_required(login_url='accounts:login')
+def manage_users_admin(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        target_user = get_object_or_404(User, id=user_id)
+
+        if target_user == request.user:
+            messages.error(request, "You cannot deactivate your own admin account.")
+        else:
+            target_user.is_active = not target_user.is_active
+            target_user.save()
+            status_label = "activated" if target_user.is_active else "deactivated"
+            messages.success(request, f"Account for {target_user.email} has been {status_label}.")
+
+        return redirect('accounts:manage_users')
+
+    role_filter = request.GET.get('role', 'ALL')
+    users = User.objects.select_related('student_profile').order_by('-date_joined')
+
+    if role_filter == 'STUDENT':
+        users = users.filter(role='STUDENT')
+    elif role_filter == 'SUPERVISOR':
+        users = users.filter(role__in=['UNI_SUPERVISOR', 'FIELD_SUPERVISOR'])
+    elif role_filter == 'ADMIN':
+        users = users.filter(is_superuser=True)
+
+    return render(request, 'accounts/manage_users.html', {
+        'users': users,
+        'role_filter': role_filter,
+    })

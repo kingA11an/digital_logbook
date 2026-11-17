@@ -100,12 +100,12 @@
         <div class="grid grid-cols-1 gap-3 p-6 md:grid-cols-3">
 
             {# TODO: replace "#" with your create-test-student URL, e.g. {% url 'accounts:create_test_student' %} #}
-            <a href="#"
+            <a href="{% url 'accounts:create_user' %}"
                class="flex items-center gap-3 rounded-md border border-transparent bg-indigo-500 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 shrink-0" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
                 </svg>
-                <span>Create Test User (Student)</span>
+                <span>Create Test User</span>
             </a>
 
             <a href="{% url 'accounts:send_supervisor_invite' %}"

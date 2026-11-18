@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users | TrueLog{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl">
+
+    <!-- back link -->
+    <a href="{% url 'admin_dashboard' %}"
+        class="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-[#0a0f1c]">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <!-- django messages -->
+    {% if messages %}
+    <div class="mb-6 space-y-3">
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        <div class="flex items-start gap-3 rounded-md border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950" role="status">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-400" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <p class="text-sm font-medium text-green-800 dark:text-green-300">{{ message }}</p>
+        </div>
+        {% elif message.tags == 'error' %}
+        <div class="flex items-start gap-3 rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+            </svg>
+            <p class="text-sm font-medium text-red-800 dark:text-red-300">{{ message }}</p>
+        </div>
+        {% elif message.tags == 'warning' %}
+        <div class="flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            </svg>
+            <p class="text-sm font-medium text-amber-800 dark:text-amber-300">{{ message }}</p>
+        </div>
+        {% else %}
+        <div class="flex items-start gap-3 rounded-md border border-gray-200 bg-white p-4 dark:border-slate-800 dark:bg-[#0f172a]" role="status">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+            </svg>
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ message }}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- header card -->
+    <div class="mb-6 flex flex-col gap-4 rounded-md border border-gray-200 bg-white p-6 dark:border-slate-800 dark:bg-[#0f172a] sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-4">
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-brand-500 dark:border-slate-800 dark:bg-[#0a0f1c]">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                </svg>
+            </span>
+            <div>
+                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">User Directory</h1>
+                <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">View accounts, check roles, and activate or deactivate access.</p>
+            </div>
+        </div>
+        <a href="{% url 'accounts:create_user' %}"
+            class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#0f172a]">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokewidth="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Provision User
+        </a>
+    </div>
+
+    <!-- directory card -->
+    <div class="rounded-md border border-gray-200 bg-white dark:border-slate-800 dark:bg-[#0f172a]">
+
+        <!-- role filter tabs -->
+        <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-6 dark:border-slate-800">
+            <nav class="-mb-px flex gap-6 overflow-x-auto" aria-label="Filter users by role">
+                <a href="?role=ALL"
+                    {% if role_filter == 'ALL' or not role_filter %}aria-current="page"{% endif %}
+                    class="whitespace-nowrap border-b-2 py-4 text-sm font-medium transition-colors {% if role_filter == 'ALL' or not role_filter %}border-brand-500 text-brand-500 dark:text-brand-400{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-slate-700 dark:hover:text-white{% endif %}">
+                    All
+                </a>
+                <a href="?role=STUDENT"
+                    {% if role_filter == 'STUDENT' %}aria-current="page"{% endif %}
+                    class="whitespace-nowrap border-b-2 py-4 text-sm font-medium transition-colors {% if role_filter == 'STUDENT' %}border-brand-500 text-brand-500 dark:text-brand-400{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-slate-700 dark:hover:text-white{% endif %}">
+                    Students
+                </a>
+                <a href="?role=SUPERVISOR"
+                    {% if role_filter == 'SUPERVISOR' %}aria-current="page"{% endif %}
+                    class="whitespace-nowrap border-b-2 py-4 text-sm font-medium transition-colors {% if role_filter == 'SUPERVISOR' %}border-brand-500 text-brand-500 dark:text-brand-400{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-slate-700 dark:hover:text-white{% endif %}">
+                    Supervisors
+                </a>
+                <a href="?role=ADMIN"
+                    {% if role_filter == 'ADMIN' %}aria-current="page"{% endif %}
+                    class="whitespace-nowrap border-b-2 py-4 text-sm font-medium transition-colors {% if role_filter == 'ADMIN' %}border-brand-500 text-brand-500 dark:text-brand-400{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-slate-700 dark:hover:text-white{% endif %}">
+                    Admins
+                </a>
+            </nav>
+            <span class="hidden shrinnk-0 rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700 dark:border-slate-800 dark:bg-[#0a0f1c] dark:text-gray-300 sm:inline-flex">
+                {{ user|length }} {{ user|length|pluralize:"user,users" }}
+            </span>
+        </div>
+
+        {% if users %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 bg-gray-50 dark:border-slate-800 dark:bg-[#0a0f1c]">
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">User</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Role</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Details</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
+                    {% for u in users %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-[#0a0f1c]">
+
+                        <!-- User -->
+                        <td class="whitespace-nowrap px-6 py-4">
+                            <p class="font-medium text-gray-900 dark:text-white">{{ u.get_full_name|default:u.username }}</p>
+                            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ u.email|default:"No email" }}</p>
+                        </td>
+
+                        <!-- role -->
+                        <td class="whitespace-nowrap px-6 py-4">
+                            {% if u.is_superuser %}
+                            <span class="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                                </svg>
+                                Superuser
+                            </span>
+                            {% elif u.role == 'STUDENT' %}
+                            <span class="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400">Student</span>
+                            {% elif u.role == 'UNI_SUPERVISOR' %}
+                            <span class="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-400">University Supervisor</span>
+                            {% elif u.role == 'FIELD_SUPERVISOR' %}
+                            <span class="inline-flex items-center rounded-md border border-teal-200 bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700 dark:border-teal-900 dark:bg-teal-950 dark:text-teal-400">Field Supervisor</span>
+                            {% elif u.is_staff %}
+                            <span class="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700 dark:border-slate-800 dark:bg-[#0a0f1c] dark:text-gray-300">Staff</span>
+                            {% else %}
+                            <span class="inline-flex items-center rounded-md border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700 dark:border-slate-800 dark:bg-[#0a0f1c] dark:text-gray-300">{{ u.role|default:"Unassigned" }}</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- details -->
+                        <td class="whitespace-nowrap px-6 py-4">
+                            {% if u.role == 'STUDENT' and u.student_profile %}
+                            <p class="font-medium text-gray-700 dark:text-gray-300">{{ u.student_profile.registration_number }}</p>
+                            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ u.student_profile.course }}</p>
+                            {% else %}
+                            <span class="text-gray-400 dark:text-gray-600" aria-label="No details">&mdash;</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- status -->
+                        <td class="whitespace-nowrap px-6 py-4">
+                            {% if u.isactive %}
+                            <span class="inline-flex items-center gap-1 rounded-md border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                </svg>
+                                Active
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                </svg>
+                                Inactive
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- actions -->
+                        <td class="whitespace-nowrap px-6 py-4">
+                            {% if u == request.user %}
+                            <span class="text-xs font-medium text-gray-400 dark:text-gray-500">Current user</span>
+                            {% else %}
+                            <form method="POST" action="?role={{ role_filter|default:'ALL' }}" class="m-0">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ u.id }}">
+                                {% if u.is_active %}
+                                <button type="submit"
+                                        onclick="return confirm('Deactivate {{ u.get_full_name|default:u.username|escapejs }}? They will no longer be able to log in.');"
+                                        class="inline-flex items-center gap-1.5 rounded-md border border-green-300 bg-white px-3 py-1.5 text-xs font-semibold text-green-700 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 dark:border-red-900 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-950 dark:focus:ring-offset-[#0f172a]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                    </svg>
+                                    Deactivate
+                                </button>
+                                {% else %}
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1.5 rounded-md border border-green-300 bg-white px-3 py-1.5 text-xs font-semibold text-green-700 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 dark:border-green-900 dark:bg-transparent dark:text-green-400 dark:hover:bg-green-950 dark:focus:ring-offset-[#0f172a]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                    Activate
+                                </button>
+                                {% endif %}
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <!-- empty state -->
+        <div class="flex flex-col items-center px-6 py-16 text-center">
+            <span class="flex h-12 w-12 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-400 dark:border-slate-800 dark:bg-[#0a0f1c] dark:text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                </svg>
+            </span>
+            <h3 class="mt-4 text-sm font-semibold text-gray-900 dark:text-white">No users found</h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                {% if role_filter and role_filter != 'ALL' %}No accounts match this filter.{% else %}No accounts have been created yet.{% endif %}
+            </p>
+            <div class="mt-5 flex items-center gap-3">
+                {% if role_filter and role_filter != 'ALL' %}
+                <a href="?role=ALL"
+                    class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:border-slate-700 dark:bg-transparent dark:text-white dark:hover:bg-[#0a0f1c] dark:focus:ring-offset-[#0f172a]">
+                    Clear filter
+                </a>
+                {% endif %}
+                <a href="{% url 'accounts:create_user' %}"
+                    class="inline-flex items-center gap-1.5 rounded-md border border-transparent bg-brand-500 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#0f172a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Provision User
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

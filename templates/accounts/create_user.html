@@ -284,5 +284,14 @@
 
         syncRoleFields(); // set the correct initial state (also handles re-rendered POST errors)
     })();
+    function syncRoleFields() {
+        var isStudent = roleSelect.value == 'STUDENT';
+        var isUni = roleSelect.value === 'UNI';
+        studentSection.classList.toggle('hidden', !isStudent);
+        document.getElementById('uni-section').classList.toggle('hidden',!isUni);
+        studentFields.forEach(function (fields) {
+            field.required = isStudent;
+        });
+    }
 </script>
 {% endblock %}

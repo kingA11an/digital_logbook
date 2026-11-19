@@ -90,21 +90,16 @@ def user_profile(request):
 @login_required(login_url='accounts:login')
 def role_redirect(request):
     user = request.user
-
-    # 1. intercept superusers and send them to the custom truelog admin ui
     if user.is_superuser or user.is_staff:
         return redirect('admin_dashboard')
-
-    # 2. route standard roles to their respective dashboards
-    if user.role == 'STUDENT':
+    elif user.role == User.Role.STUDENT:
         return redirect('logbook:student_dashboard')
-    elif user.role == 'UNI':
+    elif user.role == User.Role.UNI_SUPERVISOR:
         return redirect('logbook:university_dashboard')
-    elif user.role == 'FIELD':
+    elif user.role == User.Role.FIELD_SUPERVISOR:
         return redirect('logbook:supervisor_dashboard')
+    return redirect('accounts:login')
 
-    # Fallback just in case
-    return redirect('home')
 
 @staff_member_required
 def send_supervisor_invite(request):
@@ -171,7 +166,14 @@ def supervisor_register(request, token):
             if invitation.role == 'UNI':
                 user.role = User.Role.UNIVERSITY_SUPERVISOR
                 user.save()
-                UniversitySupervisorProfile.objects.create(user=user)
+                staff_id = (
+                    request.POST.get('staff_id', '').strip()
+                    or f"STF-{uuid.uuid4().hex[:6].upper()}"
+                )
+                UniversitySupervisorProfile.objects.create(
+                    user=user,
+                    staff_id=staff_id,
+                    )
             else:
                 user.role = User.Role.FIELD_SUPERVISOR
                 user.save()
@@ -208,6 +210,13 @@ def create_user_admin(request):
         if User.objects.filter(email=email).exists() or User.objects.filter(username=email).exists():
             messages.error(request, f"A user with email {email} already exists.")
             return redirect('accounts:create_user')
+
+        role_map = {
+            'STUDENT': User.Role.STUDENT,
+            'UNI': User.Role.UNI_SUPERVISOR,
+            'FIELD': User.Role.FIELD_SUPERVISOR,
+        }
+
         try:
             with transaction.atomic():
                 user = User.objects.create_user(
@@ -216,11 +225,10 @@ def create_user_admin(request):
                     password=password,
                     first_name=first_name,
                     last_name=last_name,
+                    role=role_map.get(role, 'STUDENT'),
                 )
 
                 if role == 'STUDENT':
-                    user.role = User.Role.STUDENT
-                    user.save()
                     StudentProfile.objects.create(
                         user=user,
                         registration_number=request.POST.get('registration_number', '').strip(),
@@ -229,19 +237,19 @@ def create_user_admin(request):
                         attachment_end_date=request.POST.get('attachment_end_date'),
                     )
                 elif role == 'UNI':
-                    user.role = User.Role.UNI_SUPERVISOR
-                    User.save()
-                    UniversitySupervisorProfile.objects.create(user=user)
+                    staff_id = (
+                        request.POST.get('staff_id', '').strip()
+                        or f"STF-{uuid.uuid4().hex[:6].upper()}"
+                    )
+                    UniversitySupervisorProfile.objects.create(user=user, staff_id=staff_id,)
                 elif role == 'FIELD':
-                    user.role = User.Role.FIELD_SUPERVISOR
-                    User.save()
                     FieldSupervisorProfile.objects.create(user=user)
 
             messages.success(
                 request,
-                f"Account created for {first_name} {last_name} ({email}) with password: {password}"
+                f"Account created for {first_name} {last_name} ({email}) - Password: {password}"
             )
-            return redirect('admin_dashboard')
+            return redirect('accounts:create_user')
 
         except Exception as e:
             messages.error(request, f"Error creating user: {str(e)}")

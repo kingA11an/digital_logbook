@@ -18,7 +18,7 @@ urlpatterns = [
 
     #supervisor invitation links
     path('invite-supervisor/', views.send_supervisor_invite, name='send_supervisor_invite'),
-    path('register/supervisor/<uuid:token>/', views.supervisor_register, name='supervisor_register'),
+    path('register/supervisor/<str:token>/', views.supervisor_register, name='supervisor_register'),
 
     #admin panel
     path('create-user/', views.create_user_admin, name='create_user'),

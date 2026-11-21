@@ -26,6 +26,19 @@
                      dark:[&_select]:border-gray-700 dark:[&_select]:bg-[#0a0f1c] dark:[&_select]:text-white">
             {% csrf_token %}
 
+            {% if messages %}
+            <div class="m-6 mb-0 space-y-3">
+                {% for message in messages %}
+                <div class="flex items-start gap-2 rounded-md border p-3 {% if message.tags == 'success' %}border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950{% elif message.tags == 'warning' %}border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950{% else %}border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950{% endif %}" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 {% if message.tags == 'success' %}text-green-600 dark:text-green-400{% elif message.tags == 'warning' %}text-amber-600 dark:text-amber-400{% else %}text-red-600 dark:text-red-400{% endif %}" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                    </svg>
+                    <p class="text-sm {% if message.tags == 'success' %}text-green-700 dark:text-green-300{% elif message.tags == 'warning' %}text-amber-700 dark:text-amber-300{% else %}text-red-700 dark:text-red-400{% endif %}">{{ message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             {% if form.non_field_errors %}
             <div class="m-6 mb-0 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950" role="alert">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" aria-hidden="true">
@@ -49,7 +62,7 @@
                     <!-- Username -->
                     <div class="sm:col-span-2">
                         <label for="{{ form.username.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Username</label>
-                        {{ form.username }}
+                        <input type="text" name="username" id="{{ form.username.id_for_label }}" value="{{ form_data.username|default:'' }}" autocomplete="username" required>
                         {% if form.username.errors %}
                         <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.username.errors.0 }}</p>
                         {% endif %}
@@ -58,7 +71,7 @@
                     <!-- First Name -->
                     <div>
                         <label for="{{ form.first_name.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">First name</label>
-                        {{ form.first_name }}
+                        <input type="text" name="first_name" id="{{ form.first_name.id_for_label }}" value="{{ form_data.first_name|default:'' }}" autocomplete="given-name" required>
                         {% if form.first_name.errors %}
                         <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.first_name.errors.0 }}</p>
                         {% endif %}
@@ -67,7 +80,7 @@
                     <!-- Last Name -->
                     <div>
                         <label for="{{ form.last_name.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Last name</label>
-                        {{ form.last_name }}
+                        <input type="text" name="last_name" id="{{ form.last_name.id_for_label }}" value="{{ form_data.last_name|default:'' }}" autocomplete="family-name" required>
                         {% if form.last_name.errors %}
                         <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.last_name.errors.0 }}</p>
                         {% endif %}
@@ -76,7 +89,7 @@
                     <!-- Email -->
                     <div class="sm:col-span-2">
                         <label for="{{ form.email.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Email address</label>
-                        {{ form.email }}
+                        <input type="email" name="email" id="{{ form.email.id_for_label }}" value="{{ form_data.email|default:'' }}" autocomplete="email" required>
                         {% if form.email.errors %}
                         <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.email.errors.0 }}</p>
                         {% endif %}
@@ -98,7 +111,7 @@
                     <!-- Registration Number -->
                     <div>
                         <label for="{{ form.registration_number.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Registration number</label>
-                        {{ form.registration_number }}
+                        <input type="text" name="registration_number" id="{{ form.registration_number.id_for_label }}" value="{{ form_data.registration_number|default:'' }}" required>
                         {% if form.registration_number.errors %}
                         <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.registration_number.errors.0 }}</p>
                         {% endif %}
@@ -107,7 +120,7 @@
                     <!-- Course -->
                     <div>
                         <label for="{{ form.course.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Course</label>
-                        {{ form.course }}
+                        <input type="text" name="course" id="{{ form.course.id_for_label }}" value="{{ form_data.course|default:'' }}" required>
                         {% if form.course.errors %}
                         <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.course.errors.0 }}</p>
                         {% endif %}
@@ -116,7 +129,7 @@
                     <!-- Attachment Start Date -->
                     <div>
                         <label for="{{ form.attachment_start_date.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Attachment start date</label>
-                        {{ form.attachment_start_date }}
+                        <input type="date" name="attachment_start_date" id="{{ form.attachment_start_date.id_for_label }}" value="{{ form_data.attachment_start_date|default:'' }}" required>
                         {% if form.attachment_start_date.errors %}
                         <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.attachment_start_date.errors.0 }}</p>
                         {% endif %}
@@ -125,7 +138,7 @@
                     <!-- Attachment End Date -->
                     <div>
                         <label for="{{ form.attachment_end_date.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Attachment end date</label>
-                        {{ form.attachment_end_date }}
+                        <input type="date" name="attachment_end_date" id="{{ form.attachment_end_date.id_for_label }}" value="{{ form_data.attachment_end_date|default:'' }}" required>
                         {% if form.attachment_end_date.errors %}
                         <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.attachment_end_date.errors.0 }}</p>
                         {% endif %}
@@ -147,7 +160,7 @@
                     <!-- Password -->
                     <div>
                         <label for="{{ form.password.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                        {{ form.password }}
+                        <input type="password" name="password" id="{{ form.password.id_for_label }}" autocomplete="new-password" required>
                         {% if form.password.errors %}
                         <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.password.errors.0 }}</p>
                         {% endif %}
@@ -156,7 +169,7 @@
                     <!-- Confirm Password -->
                     <div>
                         <label for="{{ form.password_confirm.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-white">Confirm password</label>
-                        {{ form.password_confirm }}
+                        <input type="password" name="password_confirm" id="{{ form.password_confirm.id_for_label }}" autocomplete="new-password" required>
                         {% if form.password_confirm.errors %}
                         <p class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ form.password_confirm.errors.0 }}</p>
                         {% endif %}
